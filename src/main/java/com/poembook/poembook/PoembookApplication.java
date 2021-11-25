@@ -28,7 +28,9 @@ public class PoembookApplication {
         corsConfiguration.setAllowCredentials(true);
         corsConfiguration.setAllowedOrigins(Arrays.asList(
                 "http://localhost:4200",
-                "http://mert-yalcin.com.tr"
+                "http://mert-yalcin.com.tr",
+                "https://poembook-app.herokuapp.com"
+
         ));
         corsConfiguration.setAllowedHeaders(Arrays.asList("Origin", "Access-Control-Allow-Origin", "Content-Type",
                 "Accept", "Jwt-Token", "Authorization", "Origin, Accept", "X-Requested-With",
