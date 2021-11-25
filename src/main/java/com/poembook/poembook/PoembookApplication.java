@@ -27,7 +27,7 @@ public class PoembookApplication {
         CorsConfiguration corsConfiguration = new CorsConfiguration();
         corsConfiguration.setAllowCredentials(true);
         corsConfiguration.setAllowedOrigins(Arrays.asList(
-                "http://localhost:8080",
+                "http://localhost:4200",
                 "http://mert-yalcin.com.tr"
         ));
         corsConfiguration.setAllowedHeaders(Arrays.asList("Origin", "Access-Control-Allow-Origin", "Content-Type",
