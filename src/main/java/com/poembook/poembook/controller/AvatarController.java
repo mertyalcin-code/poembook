@@ -35,7 +35,6 @@ public class AvatarController {
     }
 
     @PostMapping("/add")
-    @PreAuthorize("hasAnyAuthority('category:read')")
     public Result add(@RequestParam MultipartFile avatar, @RequestParam String username) {
         return this.avatarService.add(avatar, username);
     }
