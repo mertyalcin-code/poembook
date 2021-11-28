@@ -379,7 +379,7 @@ public class PoemManager implements PoemService {
                     PoemCommentBox poemCommentBox = new PoemCommentBox();
                     poemCommentBox.setPoemCommentId(poemComment.getPoemCommentId());
                     poemCommentBox.setPoemCommentText(poemComment.getPoemCommentText());
-                    poemCommentBox.setCommentTimeInMinute(TimeUnit.MILLISECONDS.toMinutes((new Date()).getTime() - poemComment.getCommentTime().getTime()));
+                    poemCommentBox.setCommentTimeInMinute(TimeUnit.MILLISECONDS.toMinutes((new Date()).getTime() - poemComment.getLastCommentUpdateTime().getTime()));
                     poemCommentBox.setLastCommentUpdateTime(poemComment.getLastCommentUpdateTime());
                     poemCommentBox.setUsername(poemComment.getUser().getUsername());
                     poemCommentBox.setUserAvatar(poemComment.getUser().getAvatar().getImageUrl());

@@ -48,6 +48,7 @@ public class PoemCommentManager implements PoemCommentService {
         poemComment.setUser(userService.findUserByUsername(username).getData());
         poemComment.setPoem(poemService.findById(poemId).getData());
         poemComment.setCommentTime(new Date());
+        poemComment.setLastCommentUpdateTime(new Date());
         poemCommentRepo.save(poemComment);
         poemService.updatePoemCommentCount(poemComment.getPoem());
         return new SuccessResult(COMMENT_CREATED);
