@@ -2,6 +2,7 @@ package com.poembook.poembook.entities.users;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.poembook.poembook.entities.notification.Notice;
 import com.poembook.poembook.entities.poem.Poem;
 import com.poembook.poembook.entities.poem.PoemComment;
 import com.poembook.poembook.entities.poem.PoemLike;
@@ -69,6 +70,10 @@ public class User implements Serializable {
     @JsonIgnore
     @ToString.Exclude
     private List<Follower> following;
+    @OneToMany(mappedBy = "user")
+    @JsonIgnore
+    @ToString.Exclude
+    private List<Notice> notices;
     @OneToOne(cascade = CascadeType.ALL)
     private Avatar avatar;
 
