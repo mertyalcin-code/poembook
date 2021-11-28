@@ -348,7 +348,11 @@ public class PoemManager implements PoemService {
     @Override
     public DataResult<PoemBox> getPoemWithPoemBox(Long poemId) {
         List<Poem> poems = new ArrayList<>();
-        poems.add(findById(poemId).getData());
+       Poem poem=findById(poemId).getData();
+       if(poem==null){
+           return new ErrorDataResult<>(POEM_NOT_FOUND);
+       }
+        poems.add(poem);
         List<PoemBox> bigList = new ArrayList<>();
         loadInfoToPoemBox(bigList, poems);
         return new SuccessDataResult<>(bigList.get(0), POEM_LISTED);
