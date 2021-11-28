@@ -1,6 +1,7 @@
 package com.poembook.poembook.business.concretes;
 
 import com.poembook.poembook.business.abstracts.FollowerService;
+import com.poembook.poembook.business.abstracts.NoticeService;
 import com.poembook.poembook.business.abstracts.UserService;
 import com.poembook.poembook.core.utilities.result.*;
 import com.poembook.poembook.entities.users.Follower;
@@ -21,6 +22,7 @@ import static com.poembook.poembook.constant.UserConstant.USER_NOT_FOUND;
 public class FollowerManager implements FollowerService {
     private final UserService userService;
     private final FollowersRepo followersRepo;
+    private final NoticeService noticeService;
 
 
     @Override
@@ -39,6 +41,9 @@ public class FollowerManager implements FollowerService {
         newFollowers.setTo(toUser);
         newFollowers.setFollowTime(new Date());
         followersRepo.save(newFollowers);
+
+        noticeService.create((fromUser.getFirstName()+" "+fromUser.getLastName() + " artık seni takip ediyor."),to);
+
         return new SuccessResult(FOLLOWER_CREATED);
     }
 
