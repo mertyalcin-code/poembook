@@ -2,6 +2,7 @@ package com.poembook.poembook.entities.users;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.poembook.poembook.entities.message.PrivateMessage;
 import com.poembook.poembook.entities.notification.Notice;
 import com.poembook.poembook.entities.poem.Poem;
 import com.poembook.poembook.entities.poem.PoemComment;
@@ -76,6 +77,14 @@ public class User implements Serializable {
     private List<Notice> notices;
     @OneToOne(cascade = CascadeType.ALL)
     private Avatar avatar;
+    @OneToMany(mappedBy = "from")
+    @JsonIgnore
+    @ToString.Exclude
+    private List<PrivateMessage> from;
+    @OneToMany(mappedBy = "to")
+    @JsonIgnore
+    @ToString.Exclude
+    private List<PrivateMessage> to;
 
     public String[] getAuthorities() {
         String[] strings = authorities.replace("[", "").replace("]", "").split(", ");
