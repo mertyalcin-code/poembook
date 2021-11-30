@@ -15,11 +15,11 @@ public interface UserService {
 
     Result updateUser(String adminUsername, String userUsername, String newFirstName, String newLastName, String newUsername, String newEmail, String role, boolean isNonLocked, boolean isActive);
 
-    Result selfUpdate(String currentUsername, String newFirstname, String newLastname, String newUsername, String facebookAccount, String twitterAccount, String instagramAccount, String aboutMe);
+    Result selfUpdate(String currentUsername,String newFirstname, String newLastname,String facebookAccount, String twitterAccount, String instagramAccount, String aboutMe);
 
     Result deleteUser(String username);
 
-    Result resetPassword(String email);
+    Result resetPassword(String email) throws MessagingException;
 
     Result changePassword(String username, String newPassword);
 
@@ -50,6 +50,10 @@ public interface UserService {
     Result changeUsername(String currentUsername, String newUsername);
 
     Result makeSuperAdmin(String username);
+
+    Result forgetPassword(String email) throws MessagingException;
+
+    Result resetPasswordWithCode(String code) throws MessagingException;
 
 }
 

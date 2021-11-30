@@ -37,6 +37,7 @@ public class PrivateMessageManager implements PrivateMessageService {
         PrivateMessage privateMessage = new PrivateMessage();
         privateMessage.setFrom(fromUser);
         privateMessage.setTo(toUser);
+        privateMessage.setMessage(message);
         privateMessage.setPmTime(new Date());
         privateMessageRepo.save(privateMessage);
         return new SuccessResult("");
@@ -81,19 +82,19 @@ public class PrivateMessageManager implements PrivateMessageService {
     }
 
     @Override
-    public DataResult<List<String>> usersMessageList(String username) {
-        List<String> usernames = new ArrayList<>();
+    public DataResult<List<User>> usersMessageList(String username) {
+        List<User> users = new ArrayList<>();
         List<PrivateMessage>  messages =usersAllMessages(username).getData();
         messages.sort(Comparator.comparing(PrivateMessage::getPmTime).reversed());
         for (PrivateMessage pm: messages) {
-            if(!usernames.contains(pm.getTo().getUsername())){
-                usernames.add(pm.getTo().getUsername());
+            if(!users.contains(pm.getTo())){
+                users.add(pm.getTo());
             }
-            if(!usernames.contains(pm.getFrom().getUsername())){
-                usernames.add(pm.getFrom().getUsername());
+            if(!users.contains(pm.getFrom())){
+                users.add(pm.getFrom());
             }
         }
-        usernames.remove(username);
-        return new SuccessDataResult<>(usernames,"");
+        users.remove(userRepo.findUserByUsername(username));
+        return new SuccessDataResult<>(users,"");
     }
 }

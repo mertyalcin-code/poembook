@@ -1,13 +1,15 @@
-package com.poembook.poembook.api.controller;
+package com.poembook.poembook.controller;
 
 import com.poembook.poembook.business.abstracts.UserService;
 import com.poembook.poembook.core.exception.entities.UserNotFoundException;
 import com.poembook.poembook.core.utilities.result.DataResult;
+import com.poembook.poembook.core.utilities.result.ErrorResult;
 import com.poembook.poembook.core.utilities.result.Result;
 import com.poembook.poembook.entities.dtos.profile.ProfileUser;
 import com.poembook.poembook.entities.users.User;
 import lombok.AllArgsConstructor;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -17,17 +19,15 @@ import org.springframework.web.bind.annotation.*;
 public class UserController {
     private final UserService userService;
     @PostMapping("/self-update")
-
     public Result selfUpdate(@RequestParam String currentUsername,
                              @RequestParam String firstName,
                              @RequestParam String lastName,
-                             @RequestParam String username,
                              @RequestParam String facebookAccount,
                              @RequestParam String twitterAccount,
                              @RequestParam String instagramAccount,
                              @RequestParam String aboutMe
     ) {
-        return userService.selfUpdate(currentUsername, firstName, lastName, username, facebookAccount, twitterAccount, instagramAccount, aboutMe);
+        return userService.selfUpdate(currentUsername,firstName, lastName, facebookAccount, twitterAccount, instagramAccount, aboutMe);
     }
 
     @GetMapping("/list/profile/{username}")

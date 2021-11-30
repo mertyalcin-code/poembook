@@ -19,7 +19,6 @@ public class PrivateMessageController {
                         @RequestParam String message
 
     ) {
-
         return privateMessageService.sendMessage(fromUsername,toUsername,message);
     }
     @PostMapping("/list/{username}")

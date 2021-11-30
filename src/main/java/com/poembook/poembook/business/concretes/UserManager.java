@@ -1,6 +1,9 @@
 package com.poembook.poembook.business.concretes;
 
+import com.poembook.poembook.business.abstracts.LoggerService;
 import com.poembook.poembook.business.abstracts.UserService;
+import com.poembook.poembook.constant.LoggerConstant;
+import com.poembook.poembook.constant.enumaration.Log;
 import com.poembook.poembook.constant.enumaration.Role;
 import com.poembook.poembook.core.utilities.result.*;
 import com.poembook.poembook.core.utilities.service.EmailService;
@@ -13,13 +16,14 @@ import com.poembook.poembook.entities.poem.PoemComment;
 import com.poembook.poembook.entities.poem.PoemLike;
 import com.poembook.poembook.entities.users.Avatar;
 import com.poembook.poembook.entities.users.Follower;
+import com.poembook.poembook.entities.users.PasswordReset;
 import com.poembook.poembook.entities.users.User;
 import com.poembook.poembook.repository.*;
 import lombok.AllArgsConstructor;
 import org.apache.commons.lang3.RandomStringUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.parameters.P;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -28,12 +32,13 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
+import static com.poembook.poembook.constant.LoggerConstant.PROCESS_OWNER;
 import static com.poembook.poembook.constant.UserConstant.*;
 
 @AllArgsConstructor
 @Service
 public class UserManager implements UserService {
-    private final Logger LOGGER = LoggerFactory.getLogger(getClass());
+    private final LoggerService logger;
     private final UserRepo userRepo;
     private final BCryptPasswordEncoder passwordEncoder;
     private final UserValidation userRegistrationValidation;
@@ -42,10 +47,10 @@ public class UserManager implements UserService {
     private final PoemCommentRepo poemCommentRepo;
     private final FollowersRepo followersRepo;
     private final EmailService emailService;
-
+    private final PasswordResetRepo passwordResetRepo;
     @Override
     public Result addUser(String currentUsername,
-                String firstName,
+                          String firstName,
                           String lastName,
                           String username,
                           String email,
@@ -89,7 +94,7 @@ public class UserManager implements UserService {
         firstFollower.setTo(user);
         followersRepo.save(firstFollower);
         emailService.sendNewPasswordEmail(firstName, password, email);
-
+        logger.log(Log.LOG_USER_ADD.toString(),LoggerConstant.USER_CREATED+user.getUsername()+PROCESS_OWNER+currentUsername);
         return new SuccessResult(USER_CREATED);
     }
 
@@ -133,6 +138,7 @@ public class UserManager implements UserService {
         firstFollower.setTo(user);
         followersRepo.save(firstFollower);
         emailService.sendNewPasswordEmail(firstName, password, email);
+        logger.log(Log.LOG_USER_REGISTRATION.toString(),LoggerConstant.USER_CREATED+PROCESS_OWNER+username);
         return new SuccessResult(USER_CREATED);
     }
 
@@ -171,11 +177,12 @@ public class UserManager implements UserService {
         currentUser.setRole(getRoleEnumName(role).name());
         currentUser.setAuthorities(getRoleEnumName(role).getAuthorities());
         userRepo.save(currentUser);
+        logger.log(Log.LOG_USER_UPDATE.toString(),LoggerConstant.USER_UPDATED+userUsername+PROCESS_OWNER+adminUsername);
         return new SuccessResult(USER_UPDATED);
     }
 
     @Override
-    public Result selfUpdate(String currentUsername, String newFirstname, String newLastname, String newUsername, String facebookAccount, String twitterAccount, String instagramAccount, String aboutMe) {
+    public Result selfUpdate(String currentUsername, String newFirstname, String newLastname, String facebookAccount, String twitterAccount, String instagramAccount, String aboutMe) {
         User currentUser = findUserByUsername(currentUsername).getData();
         currentUser.setFirstName(newFirstname);
         currentUser.setLastName(newLastname);
@@ -184,6 +191,7 @@ public class UserManager implements UserService {
         currentUser.setInstagramAccount(instagramAccount);
         currentUser.setAboutMe(aboutMe);
         userRepo.save(currentUser);
+        logger.log(Log.LOG_USER_SELF_UPDATE.toString(),LoggerConstant.USER_UPDATED+currentUsername+PROCESS_OWNER+currentUsername);
         return new SuccessResult(USER_UPDATED);
     }
 
@@ -196,11 +204,13 @@ public class UserManager implements UserService {
         removeUsersAllPoems(user);
         removeUsersAllFollowInfo(user);
         userRepo.deleteById(user.getUserId());
+        logger.log(Log.LOG_USER_DELETE.toString(),LoggerConstant.USER_DELETED+username+PROCESS_OWNER+
+                SecurityContextHolder.getContext().getAuthentication().getName());
         return new SuccessResult(USER_DELETED);
     }
 
     @Override
-    public Result resetPassword(String email) {
+    public Result resetPassword(String email) throws MessagingException {
         User user = userRepo.findUserByEmail(email);
         if (user == null) {
             return new ErrorResult(USER_NOT_FOUND);
@@ -208,8 +218,9 @@ public class UserManager implements UserService {
         String password = generatePassword();
         user.setPassword(encodePassword(password));
         userRepo.save(user);
-        LOGGER.info("New user password: " + password);
-        // emailService.sendNewPasswordEmail(user.getFirstName(), password, user.getEmail());
+        emailService.sendNewPasswordEmail(user.getFirstName(), password, user.getEmail());
+        logger.log(Log.LOG_RESET_PASSWORD.toString(),LoggerConstant.RESET_PASSWORD+email+PROCESS_OWNER+
+                SecurityContextHolder.getContext().getAuthentication().getName());
         return new SuccessResult(PASSWORD_RESET);
     }
 
@@ -221,7 +232,10 @@ public class UserManager implements UserService {
         }
         user.setPassword(encodePassword(newPassword));
         userRepo.save(user);
+        logger.log(Log.LOG_CHANGE_PASSWORD.toString(),LoggerConstant.CHANGE_PASSWORD+PROCESS_OWNER+
+                username);
         return new SuccessResult(PASSWORD_CHANGE);
+
     }
 
     @Override
@@ -430,6 +444,8 @@ public class UserManager implements UserService {
         }
         user.setEmail(newEmail);
         userRepo.save(user);
+        logger.log(Log.LOG_CHANGE_EMAIL.toString(),user.getUsername()+LoggerConstant.CHANGE_EMAIL+newEmail+PROCESS_OWNER+
+                currentUsername);
         return new SuccessResult(EMAIL_UPDATED);
     }
 
@@ -447,6 +463,8 @@ public class UserManager implements UserService {
         }
         user.setUsername(newUsername);
         userRepo.save(user);
+        logger.log(Log.LOG_CHANGE_USERNAME.toString(),currentUsername+user.getUsername()+LoggerConstant.CHANGE_USERNAME+newUsername+PROCESS_OWNER+
+                currentUsername);
         return new SuccessResult(USERNAME_UPDATED);
     }
 
@@ -459,6 +477,32 @@ public class UserManager implements UserService {
         user.setRole(Role.ROLE_SUPER_ADMIN.name());
         user.setAuthorities(Role.ROLE_SUPER_ADMIN.getAuthorities());
         return new SuccessResult("Artık Süper Admin: "+username);
+    }
+
+    @Override
+    public Result forgetPassword(String email) throws MessagingException {
+      User user=  userRepo.findUserByEmail(email);
+        if(user==null){
+            return new ErrorResult(USER_NOT_FOUND);
+        }
+        PasswordReset passwordReset = new PasswordReset();
+        passwordReset.setEmail(email);
+        passwordReset.setCode(RandomStringUtils.randomAlphanumeric(30));
+        passwordResetRepo.save(passwordReset);
+        String url = "https://poembook-app.herokuapp.com/forget-password/code/"+passwordReset.getCode();
+        emailService.sendNewForgetPasswordEmail(user.getFirstName(),url,email);
+        return new SuccessResult("Mail adresinize Aktivasyon kodu gönderildi");
+    }
+
+    @Override
+    public Result resetPasswordWithCode(String code) throws MessagingException {
+        PasswordReset passwordReset = passwordResetRepo.findByCode(code);
+       if(passwordReset==null){
+           return new ErrorResult("Hatalı link");
+       }
+       resetPassword(passwordReset.getEmail());
+       passwordResetRepo.delete(passwordResetRepo.findByCode(code));
+       return new SuccessResult("Şifren sıfırlandı ve mail adresine yenisi gönderildi.");
     }
 
 }

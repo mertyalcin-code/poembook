@@ -11,5 +11,5 @@ public interface PrivateMessageService{
     Result sendMessage(String fromUsername,String toUsername, String message);
     DataResult<List<PrivateMessage>> usersAllMessages(String username);
     DataResult<List<PrivateMessage>> usersAllMessagesWith(String username,String withUsername);
-    DataResult<List<String>> usersMessageList(String username);
+    DataResult<List<User>> usersMessageList(String username);
 }

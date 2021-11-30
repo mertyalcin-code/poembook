@@ -1,5 +1,6 @@
 package com.poembook.poembook.business.concretes;
 
+import com.poembook.poembook.business.abstracts.NoticeService;
 import com.poembook.poembook.business.abstracts.PoemCommentService;
 import com.poembook.poembook.business.abstracts.PoemService;
 import com.poembook.poembook.business.abstracts.UserService;
@@ -23,7 +24,7 @@ public class PoemCommentManager implements PoemCommentService {
     private final PoemCommentRepo poemCommentRepo;
     private final PoemService poemService;
     private final UserService userService;
-
+    private final NoticeService noticeService;
     @Override
     public DataResult<PoemComment> read(Long poemCommentId) {
         PoemComment poemComment = poemCommentRepo.findByPoemCommentId(poemCommentId);
@@ -51,6 +52,9 @@ public class PoemCommentManager implements PoemCommentService {
         poemComment.setLastCommentUpdateTime(new Date());
         poemCommentRepo.save(poemComment);
         poemService.updatePoemCommentCount(poemComment.getPoem());
+        noticeService.create(userService.findUserByUsername(username).getData().getFirstName()+" "+
+                        userService.findUserByUsername(username).getData().getLastName()+" şiirine yorum yaptı"
+                ,poemService.findById(poemId).getData().getUser().getUsername());
         return new SuccessResult(COMMENT_CREATED);
     }
 

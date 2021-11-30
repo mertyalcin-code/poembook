@@ -51,6 +51,14 @@ public class AuthController {
     public Result register(@RequestBody User user) throws MessagingException {
         return userService.register(user.getFirstName(), user.getLastName(), user.getUsername(), user.getEmail());
     }
+    @PostMapping("/forget-password")
+    public Result forgetPassword(@RequestParam String email) throws MessagingException {
+        return userService.forgetPassword(email);
+    }
+    @GetMapping("/forget-password/code/{code}")
+    public Result resetPasswordWithCode(@PathVariable String code) throws MessagingException {
+        return userService.resetPasswordWithCode(code);
+    }
 
     private HttpHeaders getJwtHeader(UserPrincipal user) {
         HttpHeaders headers = new HttpHeaders();

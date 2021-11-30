@@ -83,7 +83,7 @@ public class AdminController {
     }
 
     @GetMapping("/reset-password/{password}")
-    public Result resetPassword(@PathVariable("password") String password) {
+    public Result resetPassword(@PathVariable("password") String password) throws MessagingException {
         return userService.resetPassword(password);
     }
 
