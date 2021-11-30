@@ -1,6 +1,7 @@
 package com.poembook.poembook.business.concretes;
 
 import com.poembook.poembook.business.abstracts.LoggerService;
+import com.poembook.poembook.constant.enumaration.Log;
 import com.poembook.poembook.core.utilities.result.DataResult;
 import com.poembook.poembook.core.utilities.result.ErrorDataResult;
 import com.poembook.poembook.core.utilities.result.SuccessDataResult;
@@ -9,8 +10,7 @@ import com.poembook.poembook.repository.PostgreSqlLoggerRepo;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
 
-import java.util.Date;
-import java.util.List;
+import java.util.*;
 
 @Service
 @AllArgsConstructor
@@ -28,7 +28,10 @@ public class PostgreSqlLogger implements LoggerService {
     @Override
     public DataResult<List<PostgreSqlLog>> findAll() {
         List<PostgreSqlLog> logs = postgreSqlLoggerRepo.findAll();
-        return new SuccessDataResult<>(logs);
+        if(logs.size()<1){
+            return new ErrorDataResult<>(" Log bulunamadı");
+        }
+        return new SuccessDataResult<>(logs,"Loglar listelendi");
     }
 
     @Override
@@ -37,7 +40,7 @@ public class PostgreSqlLogger implements LoggerService {
         if(logs==null){
             return new ErrorDataResult<>(" Log bulunamadı");
         }
-    return new SuccessDataResult<>(logs);
+    return new SuccessDataResult<>(logs,"Loglar listelendi");
     }
 
     @Override
@@ -47,5 +50,15 @@ public class PostgreSqlLogger implements LoggerService {
             return new ErrorDataResult<>(" Log bulunamadı");
         }
         return new SuccessDataResult<>(logs);
+    }
+
+    @Override
+    public DataResult<List<String>> listLogTypes() {
+        List<String> types = new ArrayList<>();
+     for(Log type :Log.class.getEnumConstants()){
+         types.add(type.toString());
+     }
+
+            return new SuccessDataResult<>(types,"listed");
     }
 }

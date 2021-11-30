@@ -505,5 +505,10 @@ public class UserManager implements UserService {
        return new SuccessResult("Şifren sıfırlandı ve mail adresine yenisi gönderildi.");
     }
 
+    @Override
+    public DataResult<List<User>> populerPoets() {
+        return null; //en fazla takipçiye sahip 5 kullanıcı gelsin
+    }
+
 }
 

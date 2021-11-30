@@ -6,6 +6,7 @@ import com.poembook.poembook.entities.dtos.profile.ProfileUser;
 import com.poembook.poembook.entities.users.User;
 
 import javax.mail.MessagingException;
+import javax.xml.crypto.Data;
 import java.util.List;
 
 public interface UserService {
@@ -54,6 +55,8 @@ public interface UserService {
     Result forgetPassword(String email) throws MessagingException;
 
     Result resetPasswordWithCode(String code) throws MessagingException;
+
+    DataResult<List<User>> populerPoets();
 
 }
 

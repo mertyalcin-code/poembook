@@ -52,9 +52,11 @@ public class PoemCommentManager implements PoemCommentService {
         poemComment.setLastCommentUpdateTime(new Date());
         poemCommentRepo.save(poemComment);
         poemService.updatePoemCommentCount(poemComment.getPoem());
-        noticeService.create(userService.findUserByUsername(username).getData().getFirstName()+" "+
-                        userService.findUserByUsername(username).getData().getLastName()+" şiirine yorum yaptı"
-                ,poemService.findById(poemId).getData().getUser().getUsername());
+        if(userService.findUserByUsername(username).getData()!=poemService.findById(poemId).getData().getUser()){
+            noticeService.create(userService.findUserByUsername(username).getData().getFirstName()+" "+
+                            userService.findUserByUsername(username).getData().getLastName()+" şiirine yorum yaptı"
+                    ,poemService.findById(poemId).getData().getUser().getUsername());
+        }
         return new SuccessResult(COMMENT_CREATED);
     }
 

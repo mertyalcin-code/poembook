@@ -21,12 +21,4 @@ public enum Log {
     LOG_CATEGORY_DELETE,
 
 
-
-
-
-
-
-
-
-
 }

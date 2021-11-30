@@ -10,4 +10,7 @@ public interface LoggerService {
     DataResult<List<PostgreSqlLog>> findAll(); // bağımlı olduk
     DataResult<List<PostgreSqlLog>> findAllByLogType(String logType); // bağımlı olduk
     DataResult<List<PostgreSqlLog>> searchLogMessages(String text); // bağımlı olduk
+
+    DataResult<List<String>> listLogTypes();
+
 }
