@@ -10,7 +10,9 @@ import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 import org.springframework.web.filter.CorsFilter;
 
+import javax.annotation.PostConstruct;
 import java.util.Arrays;
+import java.util.TimeZone;
 
 @SpringBootApplication
 //@PropertySource("classpath:secrets.yml")
@@ -47,4 +49,5 @@ public class PoembookApplication {
     public BCryptPasswordEncoder bCryptPasswordEncoder() {
         return new BCryptPasswordEncoder();
     }
+
 }

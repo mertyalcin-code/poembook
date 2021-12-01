@@ -4,6 +4,7 @@ import com.poembook.poembook.core.utilities.result.DataResult;
 import com.poembook.poembook.core.utilities.result.Result;
 import com.poembook.poembook.entities.log.PostgreSqlLog;
 
+import java.time.ZonedDateTime;
 import java.util.List;
 
 public interface LoggerService {

@@ -19,6 +19,10 @@ import com.poembook.poembook.repository.PoemRepo;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.time.ZoneOffset;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
 
@@ -366,7 +370,7 @@ public class PoemManager implements PoemService {
             poemBox.setPoemContent(poem.getPoemContent());
             poemBox.setActive(poem.isActive());
             poemBox.setCreationDate(poem.getCreationDate());
-            poemBox.setCreationDateInMinute(TimeUnit.MILLISECONDS.toMinutes((new Date()).getTime() - poem.getCreationDate().getTime()));
+            poemBox.setCreationDateInMinute(TimeUnit.MILLISECONDS.toMinutes((new Date().getTime() - poem.getCreationDate().getTime())));
             poemBox.setLastUpdateDate(poem.getLastUpdateDate());
             poemBox.setCommentCount(poem.getCommentCount());
             poemBox.setHowManyLikes(poem.getHowManyLikes());
