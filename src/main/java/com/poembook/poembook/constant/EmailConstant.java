@@ -2,8 +2,8 @@ package com.poembook.poembook.constant;
 
 public class EmailConstant {
     public static final String SIMPLE_MAIL_TRANSFER_PROTOCOL = "smtps";
-    public static final String USERNAME = "mertyalcinaktivasyon@gmail.com";
-    public static final String FROM_EMAIL = "mertyalcinaktivasyon@gmail.com";
+    public static final String USERNAME = "poembook.help@gmail.com";
+    public static final String FROM_EMAIL = "poembook.help@gmail.com";
     public static final String CC_EMAIL = "";
     public static final String EMAIL_SUBJECT = "Şifre: - New Password";
     public static final String GMAIL_SMTP_SERVER = "smtp.gmail.com";
