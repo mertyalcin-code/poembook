@@ -361,7 +361,6 @@ public class PoemManager implements PoemService {
         loadInfoToPoemBox(bigList, poems);
         return new SuccessDataResult<>(bigList.get(0), POEM_LISTED);
     }
-
     private void loadInfoToPoemBox(List<PoemBox> bigList, List<Poem> poems) {
         for (Poem poem : poems) {
             PoemBox poemBox = new PoemBox();
