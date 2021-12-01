@@ -2,15 +2,17 @@ package com.poembook.poembook.business.concretes;
 
 import com.poembook.poembook.business.abstracts.LoggerService;
 import com.poembook.poembook.constant.enumaration.Log;
-import com.poembook.poembook.core.utilities.result.DataResult;
-import com.poembook.poembook.core.utilities.result.ErrorDataResult;
-import com.poembook.poembook.core.utilities.result.SuccessDataResult;
+import com.poembook.poembook.core.utilities.result.*;
 import com.poembook.poembook.entities.log.PostgreSqlLog;
 import com.poembook.poembook.repository.PostgreSqlLoggerRepo;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDate;
+import java.time.ZoneId;
 import java.util.*;
+
+import static com.poembook.poembook.constant.LogConstant.*;
 
 @Service
 @AllArgsConstructor
@@ -44,12 +46,22 @@ public class PostgreSqlLogger implements LoggerService {
     }
 
     @Override
-    public DataResult<List<PostgreSqlLog>> searchLogMessages(String text) {
-        List<PostgreSqlLog> logs = postgreSqlLoggerRepo.findAllByMessageContains(text);
-        if(logs==null){
-            return new ErrorDataResult<>(" Log bulunamadı");
-        }
-        return new SuccessDataResult<>(logs);
+    public Result deleteAllLogs() {
+        postgreSqlLoggerRepo.deleteAll();
+        return new SuccessResult(ALL_LOGS_DELETED);
+    }
+
+    @Override
+    public Result deleteLogsByLogType(String logType) {
+        postgreSqlLoggerRepo.deleteAll(postgreSqlLoggerRepo.findAllByLogType(logType));
+        return new SuccessResult(LOGS_DELETED_BY_TYPE);
+    }
+
+    @Override
+    public Result deleteAllLogsExceptThisWeek() {
+        Date date = Date.from((LocalDate.now().minusDays(7)).atStartOfDay().atZone(ZoneId.systemDefault()).toInstant());
+        postgreSqlLoggerRepo.deleteAll(postgreSqlLoggerRepo.findAllByLogTimeBefore(date));
+        return new SuccessResult(LOGS_DELETED_EXCEPT_THIS_WEEK);
     }
 
     @Override
