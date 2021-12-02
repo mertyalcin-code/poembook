@@ -6,6 +6,8 @@ import lombok.AllArgsConstructor;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
+import javax.mail.MessagingException;
+
 @RestController
 @RequestMapping("/private-message")
 @AllArgsConstructor
@@ -18,7 +20,7 @@ public class PrivateMessageController {
                        @RequestParam String toUsername,
                        @RequestParam String message
 
-    ) {
+    ) throws MessagingException {
         return privateMessageService.sendMessage(fromUsername, toUsername, message);
     }
 

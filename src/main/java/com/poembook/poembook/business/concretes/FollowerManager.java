@@ -16,6 +16,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import static com.poembook.poembook.constant.FollowerConstant.*;
+import static com.poembook.poembook.constant.NoticeConstant.NOTICE_NOW_FOLLOWING;
 import static com.poembook.poembook.constant.UserConstant.USER_NOT_FOUND;
 
 @Service
@@ -43,7 +44,7 @@ public class FollowerManager implements FollowerService {
         newFollowers.setFollowTime(LocalDateTime.now().atZone(ZoneId.of("UTC+3")));
         followersRepo.save(newFollowers);
 
-        noticeService.create((fromUser.getFirstName() + " " + fromUser.getLastName() + " artık seni takip ediyor."), to);
+        noticeService.create((fromUser.getFirstName() + " " + fromUser.getLastName() + NOTICE_NOW_FOLLOWING), to);
 
         return new SuccessResult(FOLLOWER_CREATED);
     }

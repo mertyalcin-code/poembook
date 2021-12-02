@@ -1,6 +1,5 @@
 package com.poembook.poembook.business.concretes;
 
-import com.poembook.poembook.business.abstracts.FollowerService;
 import com.poembook.poembook.business.abstracts.LoggerService;
 import com.poembook.poembook.business.abstracts.UserService;
 import com.poembook.poembook.constant.LoggerConstant;
@@ -53,7 +52,6 @@ public class UserManager implements UserService {
     private final PasswordResetRepo passwordResetRepo;
     private final NoticeRepo noticeRepo;
     private final PrivateMessageRepo privateMessageRepo;
-    private final FollowerService followerService;
 
     //Auth methods
     @Override

@@ -2,12 +2,12 @@ package com.poembook.poembook.business.concretes;
 
 import com.poembook.poembook.business.abstracts.CategoryService;
 import com.poembook.poembook.business.abstracts.LoggerService;
-import com.poembook.poembook.business.abstracts.UserService;
 import com.poembook.poembook.constant.CategoryConstant;
 import com.poembook.poembook.core.utilities.result.*;
 import com.poembook.poembook.core.utilities.validation.CategoryValidation;
 import com.poembook.poembook.entities.category.Category;
 import com.poembook.poembook.repository.CategoryRepo;
+import com.poembook.poembook.repository.UserRepo;
 import lombok.AllArgsConstructor;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -26,7 +26,7 @@ import static com.poembook.poembook.constant.enumaration.Log.LOG_CATEGORY_UPDATE
 @AllArgsConstructor
 public class CategoryManager implements CategoryService {
     private final CategoryRepo categoryRepo;
-    private final UserService userService;
+    private final UserRepo userRepo;
     private final CategoryValidation validation;
     private final LoggerService logger;
 
@@ -47,7 +47,7 @@ public class CategoryManager implements CategoryService {
             return new ErrorResult(validation.validateCategoryCreate(categoryTitle).getMessage());
         }
         Category category = new Category();
-        category.setCreatorUsername(userService.findUserByUsername(currentUsername).getData().getUsername());
+        category.setCreatorUsername(userRepo.findUserByUsername(currentUsername).getUsername());
         category.setCategoryTitle(categoryTitle);
         category.setCreationDate(LocalDateTime.now().atZone(ZoneId.of("UTC+3")));
         category.setActive(isActive);
@@ -66,7 +66,7 @@ public class CategoryManager implements CategoryService {
             return new ErrorResult(CATEGORY_TITLE_NOT_VALID);
         }
         String oldTitle = category.getCategoryTitle();
-        category.setUpdateUsername(userService.findUserByUsername(username).getData().getUsername());
+        category.setUpdateUsername(userRepo.findUserByUsername(username).getUsername());
         category.setCategoryTitle(newCategoryTitle);
         category.setLastUpdateDate(LocalDateTime.now().atZone(ZoneId.of("UTC+3")));
         category.setActive(isActive);

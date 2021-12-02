@@ -1,7 +1,9 @@
 package com.poembook.poembook.business.concretes;
 
+import com.poembook.poembook.business.abstracts.NoticeService;
 import com.poembook.poembook.business.abstracts.PrivateMessageService;
 import com.poembook.poembook.core.utilities.result.*;
+import com.poembook.poembook.core.utilities.service.EmailService;
 import com.poembook.poembook.entities.message.PrivateMessage;
 import com.poembook.poembook.entities.users.User;
 import com.poembook.poembook.repository.PrivateMessageRepo;
@@ -10,12 +12,16 @@ import lombok.AllArgsConstructor;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 
+import javax.mail.MessagingException;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
+import java.time.chrono.ChronoZonedDateTime;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 
+import static com.poembook.poembook.constant.PrivateMessageConstant.MESSAGE_LISTED;
+import static com.poembook.poembook.constant.PrivateMessageConstant.MESSAGE_SENT;
 import static com.poembook.poembook.constant.UserConstant.USER_NOT_FOUND;
 
 @Service
@@ -23,9 +29,11 @@ import static com.poembook.poembook.constant.UserConstant.USER_NOT_FOUND;
 public class PrivateMessageManager implements PrivateMessageService {
     private PrivateMessageRepo privateMessageRepo;
     private UserRepo userRepo;
+    private NoticeService noticeService;
+    private EmailService emailService;
 
     @Override
-    public Result sendMessage(String fromUsername, String toUsername, String message) {
+    public Result sendMessage(String fromUsername, String toUsername, String message) throws MessagingException {
         User fromUser = userRepo.findUserByUsername(fromUsername);
         User toUser = userRepo.findUserByUsername(toUsername);
         if (fromUser == null || toUser == null) {
@@ -39,8 +47,17 @@ public class PrivateMessageManager implements PrivateMessageService {
         privateMessage.setTo(toUser);
         privateMessage.setMessage(message);
         privateMessage.setPmTime(LocalDateTime.now().atZone(ZoneId.of("UTC+3")));
+        List<PrivateMessage> messages = privateMessageRepo.findAllByFromAndTo(fromUser, toUser);
+        messages.removeIf(pm -> pm.getPmTime().isBefore(ChronoZonedDateTime.from(LocalDateTime.now().minusHours(24))));
+        if (messages.size() < 1) {
+            emailService.sendYouHaveMessageEmail(toUser.getUsername(), toUser.getEmail(), fromUser.getFirstName() + " " + fromUser.getLastName());
+        }
+
         privateMessageRepo.save(privateMessage);
-        return new SuccessResult("");
+        noticeService.create(
+                fromUser.getFirstName() + " " + fromUser.getLastName() + MESSAGE_SENT
+                , toUsername);
+        return new SuccessResult(MESSAGE_SENT);
     }
 
     @Override
@@ -59,7 +76,7 @@ public class PrivateMessageManager implements PrivateMessageService {
         if (toMessage != null) {
             usersAllMessages.addAll(toMessage);
         }
-        return new SuccessDataResult<>(usersAllMessages, "");
+        return new SuccessDataResult<>(usersAllMessages, MESSAGE_LISTED);
     }
 
     @Override
@@ -78,7 +95,7 @@ public class PrivateMessageManager implements PrivateMessageService {
         }
         privateMessages.sort(Comparator.comparing(PrivateMessage::getPmTime));
 
-        return new SuccessDataResult<>(privateMessages, "");
+        return new SuccessDataResult<>(privateMessages, MESSAGE_LISTED);
     }
 
     @Override
@@ -95,6 +112,6 @@ public class PrivateMessageManager implements PrivateMessageService {
             }
         }
         users.remove(userRepo.findUserByUsername(username));
-        return new SuccessDataResult<>(users, "");
+        return new SuccessDataResult<>(users, MESSAGE_LISTED);
     }
 }

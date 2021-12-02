@@ -6,4 +6,5 @@ public class CommentConstant {
     public static final String COMMENT_CREATED = "Yorum oluşturuldu.";
     public static final String COMMENT_UPDATED = "Yorum güncellendi";
     public static final String COMMENTS_LISTED = "Yorum Listelendi";
+    public static final String COMMENT_NOT_VALID = "Yorum Hatalı";
 }

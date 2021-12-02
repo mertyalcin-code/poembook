@@ -5,10 +5,11 @@ import com.poembook.poembook.core.utilities.result.Result;
 import com.poembook.poembook.entities.message.PrivateMessage;
 import com.poembook.poembook.entities.users.User;
 
+import javax.mail.MessagingException;
 import java.util.List;
 
 public interface PrivateMessageService {
-    Result sendMessage(String fromUsername, String toUsername, String message);
+    Result sendMessage(String fromUsername, String toUsername, String message) throws MessagingException;
 
     DataResult<List<PrivateMessage>> usersAllMessages(String username);
 

@@ -5,6 +5,7 @@ import com.poembook.poembook.business.abstracts.PoemCommentService;
 import com.poembook.poembook.business.abstracts.PoemService;
 import com.poembook.poembook.business.abstracts.UserService;
 import com.poembook.poembook.core.utilities.result.*;
+import com.poembook.poembook.core.utilities.validation.CommentValidation;
 import com.poembook.poembook.entities.poem.Poem;
 import com.poembook.poembook.entities.poem.PoemComment;
 import com.poembook.poembook.repository.PoemCommentRepo;
@@ -16,8 +17,8 @@ import java.time.ZoneId;
 import java.util.List;
 
 import static com.poembook.poembook.constant.CommentConstant.*;
+import static com.poembook.poembook.constant.NoticeConstant.NOTICE_MADE_COMMENT;
 import static com.poembook.poembook.constant.PoemConstant.POEM_NOT_FOUND;
-import static com.poembook.poembook.constant.UserConstant.USER_NOT_FOUND;
 
 @Service
 @AllArgsConstructor
@@ -26,6 +27,7 @@ public class PoemCommentManager implements PoemCommentService {
     private final PoemService poemService;
     private final UserService userService;
     private final NoticeService noticeService;
+    private final CommentValidation validation;
 
     @Override
     public DataResult<PoemComment> read(Long poemCommentId) {
@@ -39,13 +41,10 @@ public class PoemCommentManager implements PoemCommentService {
 
     @Override
     public Result create(String poemCommentText, Long poemId, String username) {
-        if (poemService.findById(poemId) == null) {
-            return new ErrorResult(POEM_NOT_FOUND);
+
+        if (!validation.validateCreateComment(poemCommentText, poemId, username).isSuccess()) {
+            return new ErrorResult(validation.validateCreateComment(poemCommentText, poemId, username).getMessage());
         }
-        if (userService.findUserByUsername(username) == null) {
-            return new ErrorResult(USER_NOT_FOUND);
-        }
-        //validasyon
         PoemComment poemComment = new PoemComment();
         poemComment.setPoemCommentText(poemCommentText);
         poemComment.setUser(userService.findUserByUsername(username).getData());
@@ -56,7 +55,7 @@ public class PoemCommentManager implements PoemCommentService {
         poemService.updatePoemCommentCount(poemComment.getPoem());
         if (userService.findUserByUsername(username).getData() != poemService.findById(poemId).getData().getUser()) {
             noticeService.create(userService.findUserByUsername(username).getData().getFirstName() + " " +
-                            userService.findUserByUsername(username).getData().getLastName() + " şiirine yorum yaptı"
+                            userService.findUserByUsername(username).getData().getLastName() + NOTICE_MADE_COMMENT
                     , poemService.findById(poemId).getData().getUser().getUsername());
         }
         return new SuccessResult(COMMENT_CREATED);
@@ -65,8 +64,8 @@ public class PoemCommentManager implements PoemCommentService {
     @Override
     public Result update(Long poemCommentId, String poemCommentText) {
         PoemComment poemComment = poemCommentRepo.findByPoemCommentId(poemCommentId);
-        if (poemComment == null) {
-            return new ErrorResult(COMMENT_NOT_FOUND);
+        if (!validation.validateUpdateComment(poemCommentId, poemCommentText).isSuccess()) {
+            return new ErrorResult(validation.validateUpdateComment(poemCommentId, poemCommentText).getMessage());
         }
         poemComment.setPoemCommentText(poemCommentText);
         poemComment.setLastCommentUpdateTime(LocalDateTime.now().atZone(ZoneId.of("UTC+3")));
@@ -92,8 +91,6 @@ public class PoemCommentManager implements PoemCommentService {
         if (comments.size() > 0) {
             poemCommentRepo.deleteAll(comments);
         }
-
-
     }
 
     @Override

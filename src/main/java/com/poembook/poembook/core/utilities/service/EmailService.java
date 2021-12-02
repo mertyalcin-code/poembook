@@ -37,6 +37,14 @@ public class EmailService {
         smtpTransport.close();
     }
 
+    public void sendYouHaveMessageEmail(String firstName, String email, String senderName) throws MessagingException {
+        Message message = createYouHaveMessageEmail(firstName, senderName, email);
+        SMTPTransport smtpTransport = (SMTPTransport) getEmailSession().getTransport(SIMPLE_MAIL_TRANSFER_PROTOCOL);
+        smtpTransport.connect(GMAIL_SMTP_SERVER, USERNAME, PASSWORD);
+        smtpTransport.sendMessage(message, message.getAllRecipients());
+        smtpTransport.close();
+    }
+
     private Message createNewPasswordEmail(String firstName, String password, String email) throws MessagingException {
         Message message = new MimeMessage(getEmailSession());
         message.setFrom(new InternetAddress(FROM_EMAIL));
@@ -57,6 +65,19 @@ public class EmailService {
         message.setRecipients(CC, InternetAddress.parse(CC_EMAIL, false));
         message.setSubject("Şifreni Sıfırla");
         message.setText("Merhaba " + firstName + ", \n \n Hesabının şifresini sıfırlamak istiyorsan tıkla:  " + url + "\n \n Poembook Yönetimi");
+        message.setSentDate(new Date());
+        message.saveChanges();
+
+        return message;
+    }
+
+    private Message createYouHaveMessageEmail(String firstName, String senderName, String email) throws MessagingException {
+        Message message = new MimeMessage(getEmailSession());
+        message.setFrom(new InternetAddress(FROM_EMAIL));
+        message.setRecipients(TO, InternetAddress.parse(email, false));
+        message.setRecipients(CC, InternetAddress.parse(CC_EMAIL, false));
+        message.setSubject("Mesajın Var");
+        message.setText("Merhaba " + firstName + ", \n \n" + senderName + "sana mesaj gönderdi  " + "\n \n Poembook Yönetimi");
         message.setSentDate(new Date());
         message.saveChanges();
 
