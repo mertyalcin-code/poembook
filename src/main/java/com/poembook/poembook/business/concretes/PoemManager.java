@@ -369,7 +369,7 @@ public class PoemManager implements PoemService {
             poemBox.setPoemContent(poem.getPoemContent());
             poemBox.setActive(poem.isActive());
             poemBox.setCreationDate(poem.getCreationDate());
-            poemBox.setCreationDateInMinute(((LocalDateTime.now().getMinute() - poem.getCreationDate().getMinute())));
+            poemBox.setCreationDateInMinute(((LocalDateTime.now().atZone(ZoneId.of("UTC+3")).getMinute() - poem.getCreationDate().getMinute())));
             poemBox.setLastUpdateDate(poem.getLastUpdateDate());
             poemBox.setCommentCount(poem.getCommentCount());
             poemBox.setHowManyLikes(poem.getHowManyLikes());
