@@ -2,6 +2,8 @@ package com.poembook.poembook.entities.dtos.profile;
 
 import lombok.Data;
 
+import java.time.LocalDateTime;
+import java.time.ZonedDateTime;
 import java.util.Date;
 import java.util.List;
 
@@ -12,7 +14,7 @@ public class ProfileUser {
     private String firstName;
     private String lastName;
     private String username;
-    private Date joinDate;
+    private ZonedDateTime joinDate;
     private int poemCount;
     private String aboutMe;
     private String imageUrl;

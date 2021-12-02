@@ -9,6 +9,8 @@ import com.poembook.poembook.repository.UserRepo;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
+import java.time.ZoneId;
 import java.util.Date;
 import java.util.List;
 
@@ -34,7 +36,8 @@ public class NoticeManager implements NoticeService {
         Notice newNotice = new Notice();
         newNotice.setNoticeText(notice);
         newNotice.setUser(user);
-        newNotice.setNoticeTime(new Date());
+        newNotice.setNoticeTime(LocalDateTime.now().atZone(ZoneId.of("UTC+3"))
+                );
         noticeRepo.save(newNotice);
         return new SuccessResult(NOTICE_CREATED);
     }

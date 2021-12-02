@@ -13,6 +13,8 @@ import com.poembook.poembook.repository.LikedPoemsRepo;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
+import java.time.ZoneId;
 import java.util.Date;
 import java.util.List;
 
@@ -33,7 +35,7 @@ public class PoemLikeManager implements PoemLikeService {
             return new ErrorResult(POEM_ALREADY_LIKED);
         }
         PoemLike likedPoem = new PoemLike();
-        likedPoem.setLikedAt(new Date());
+        likedPoem.setLikedAt(LocalDateTime.now().atZone(ZoneId.of("UTC+3")));
         likedPoem.setUser(user);
         likedPoem.setPoem(poem);
         likedPoemsRepo.save(likedPoem);

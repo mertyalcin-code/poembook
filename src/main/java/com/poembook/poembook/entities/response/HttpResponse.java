@@ -9,6 +9,9 @@ import lombok.experimental.SuperBuilder;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 
+import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
 import java.util.Date;
 
 import static com.poembook.poembook.constant.HttpResponseConstant.HTTP_RESPONSE_PATTERN;
@@ -20,14 +23,14 @@ import static com.poembook.poembook.constant.HttpResponseConstant.HTTP_RESPONSE_
 @SuperBuilder
 public class HttpResponse {
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = HTTP_RESPONSE_PATTERN, timezone = HttpResponseConstant.HTTP_RESPONSE_TIME_ZONE)
-    private Date timeStamp;
+    private ZonedDateTime timeStamp;
     private int httpStatusCode;
     private HttpStatus httpStatus;
     private String reason;
     private String message;
 
     public HttpResponse(int httpStatusCode, HttpStatus httpStatus, String reason, String message) {
-        this.timeStamp = new Date();
+        this.timeStamp = LocalDateTime.now().atZone(ZoneId.of("UTC+3"));
         this.httpStatusCode = httpStatusCode;
         this.httpStatus = httpStatus;
         this.reason = reason;

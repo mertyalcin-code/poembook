@@ -4,6 +4,8 @@ import lombok.*;
 import org.hibernate.Hibernate;
 
 import javax.persistence.*;
+import java.time.LocalDateTime;
+import java.time.ZonedDateTime;
 import java.util.Objects;
 
 @Entity
@@ -18,4 +20,5 @@ public class PasswordReset {
     private String email;
     @Column(unique = true)
     private String code;
+    private ZonedDateTime creationDate;
 }

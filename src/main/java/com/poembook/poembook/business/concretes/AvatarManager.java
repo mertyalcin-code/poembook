@@ -13,6 +13,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
@@ -52,7 +54,7 @@ public class AvatarManager implements AvatarService {
         Avatar avatar = new Avatar();
         avatar.setImageUrl(result.getData().get("url"));
         avatar.setPublic_id(result.getData().get("public_id"));
-        avatar.setUploadedDate(new Date());
+        avatar.setUploadedDate(LocalDateTime.now().atZone(ZoneId.of("UTC+3")));
         user.setAvatar(avatar);
         userRepo.save(user);
 

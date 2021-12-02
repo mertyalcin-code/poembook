@@ -7,6 +7,8 @@ import lombok.Setter;
 
 import javax.persistence.*;
 import java.io.Serializable;
+import java.time.LocalDateTime;
+import java.time.ZonedDateTime;
 import java.util.Date;
 
 @Getter
@@ -19,13 +21,13 @@ public class Avatar implements Serializable {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int avatarId;
     private String imageUrl;
-    private Date uploadedDate;
+    private ZonedDateTime uploadedDate;
     private String public_id;
     @OneToOne(mappedBy = "avatar")
     @JsonIgnore
     private User user;
 
-    public Avatar(String imageUrl, Date uploadedDate, User user) {
+    public Avatar(String imageUrl, ZonedDateTime uploadedDate, User user) {
         this.imageUrl = imageUrl;
         this.uploadedDate = uploadedDate;
         this.user = user;

@@ -10,6 +10,8 @@ import lombok.ToString;
 
 import javax.persistence.*;
 import java.io.Serializable;
+import java.time.LocalDateTime;
+import java.time.ZonedDateTime;
 import java.util.Date;
 import java.util.List;
 
@@ -26,8 +28,8 @@ public class Poem implements Serializable {
     @Column(length = 5000)
     private String poemContent;
     private boolean isActive;
-    private Date creationDate;
-    private Date lastUpdateDate;
+    private ZonedDateTime creationDate;
+    private ZonedDateTime lastUpdateDate;
     private int commentCount;
     private int howManyLikes;
     @ManyToOne

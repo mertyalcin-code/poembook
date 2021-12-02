@@ -9,6 +9,7 @@ import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.util.*;
 
@@ -23,7 +24,7 @@ public class PostgreSqlLogger implements LoggerService {
         PostgreSqlLog postgreSqlLog = new PostgreSqlLog();
         postgreSqlLog.setLogType(logType);
         postgreSqlLog.setMessage(message);
-        postgreSqlLog.setLogTime(new Date());
+        postgreSqlLog.setLogTime(LocalDateTime.now().atZone(ZoneId.of("UTC+3")));
         postgreSqlLoggerRepo.save(postgreSqlLog);
     }
 

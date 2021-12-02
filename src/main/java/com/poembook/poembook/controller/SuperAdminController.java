@@ -1,4 +1,4 @@
-package com.poembook.poembook.api.controller;
+package com.poembook.poembook.controller;
 
 import com.poembook.poembook.business.abstracts.UserService;
 import com.poembook.poembook.core.exception.entities.UserNotFoundException;
@@ -20,14 +20,14 @@ public class SuperAdminController {
     private final UserService userService;
 
     @GetMapping("/make-super-admin/{username}")
-    public Result makeSuperAdmin(@PathVariable("username") String username){
+    public Result makeSuperAdmin(@PathVariable String username){
 
         return userService.makeSuperAdmin(username);
     }
 
 
     @DeleteMapping("/delete/{username}")
-    public Result deleteUser(@PathVariable("username") String username){
+    public Result deleteUser(@PathVariable String username){
 
         return userService.deleteUser(username);
     }

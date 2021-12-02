@@ -7,6 +7,8 @@ import lombok.Setter;
 import lombok.ToString;
 
 import javax.persistence.*;
+import java.time.LocalDateTime;
+import java.time.ZonedDateTime;
 import java.util.Date;
 
 @Entity
@@ -18,7 +20,7 @@ public class Follower {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private long followersId;
-    private Date followTime;
+    private ZonedDateTime followTime;
     @ManyToOne
     @JoinColumn(name = "from_user_fk")
     @JsonIgnore

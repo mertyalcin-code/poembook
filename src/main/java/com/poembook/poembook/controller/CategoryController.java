@@ -1,4 +1,4 @@
-package com.poembook.poembook.api.controller;
+package com.poembook.poembook.controller;
 
 import com.poembook.poembook.business.abstracts.CategoryService;
 import com.poembook.poembook.core.utilities.result.DataResult;

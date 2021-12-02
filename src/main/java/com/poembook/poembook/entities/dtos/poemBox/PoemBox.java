@@ -2,6 +2,8 @@ package com.poembook.poembook.entities.dtos.poemBox;
 
 import lombok.Data;
 
+import java.time.LocalDateTime;
+import java.time.ZonedDateTime;
 import java.util.Date;
 import java.util.List;
 
@@ -12,9 +14,9 @@ public class PoemBox {
     private String poemTitle;
     private String poemContent;
     private boolean isActive;
-    private Date creationDate;
+    private ZonedDateTime creationDate;
     private long creationDateInMinute;
-    private Date lastUpdateDate;
+    private ZonedDateTime lastUpdateDate;
     private int commentCount;
     private int howManyLikes;
     private List<String> whoLiked;

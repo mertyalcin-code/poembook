@@ -5,6 +5,8 @@ import lombok.*;
 import org.hibernate.Hibernate;
 
 import javax.persistence.*;
+import java.time.LocalDateTime;
+import java.time.ZonedDateTime;
 import java.util.Date;
 import java.util.Objects;
 
@@ -17,7 +19,7 @@ public class PrivateMessage {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private long pmId;
-    private Date pmTime;
+    private ZonedDateTime pmTime;
     private String message;
     @ManyToOne
     @JoinColumn(name = "from_user_fk")

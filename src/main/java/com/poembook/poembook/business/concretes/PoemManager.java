@@ -67,10 +67,10 @@ public class PoemManager implements PoemService {
         if (!poemValidation.isPoemContentValid(poem)) {
             return new ErrorResult(POEM_CONTENT_INVALID);
         }
-        poem.setCreationDate(new Date());
+        poem.setCreationDate(LocalDateTime.now().atZone(ZoneId.of("UTC+3")));
         poem.setCommentCount(0);
         poem.setActive(true);
-        poem.setLastUpdateDate(new Date());
+        poem.setLastUpdateDate(LocalDateTime.now().atZone(ZoneId.of("UTC+3")));
         poem.setHowManyLikes(0);
         poemRepo.save(poem);
         userService.updatePoemCount(poem.getUser());
@@ -97,7 +97,7 @@ public class PoemManager implements PoemService {
         }
         poem.setPoemTitle(poemTitle);
         poem.setPoemContent(poemContent);
-        poem.setLastUpdateDate(new Date());
+        poem.setLastUpdateDate(LocalDateTime.now().atZone(ZoneId.of("UTC+3")));
         poemRepo.save(poem);
         return new SuccessResult(POEM_UPDATED);
     }
@@ -311,7 +311,7 @@ public class PoemManager implements PoemService {
         poem.setPoemTitle(poemTitle);
         poem.setActive(isActive);
         poem.setPoemContent(poemContent);
-        poem.setLastUpdateDate(new Date());
+        poem.setLastUpdateDate(LocalDateTime.now().atZone(ZoneId.of("UTC+3")));
         poemRepo.save(poem);
         return new SuccessResult(POEM_UPDATED);
     }
@@ -369,7 +369,7 @@ public class PoemManager implements PoemService {
             poemBox.setPoemContent(poem.getPoemContent());
             poemBox.setActive(poem.isActive());
             poemBox.setCreationDate(poem.getCreationDate());
-            poemBox.setCreationDateInMinute(TimeUnit.MILLISECONDS.toMinutes((new Date().getTime() - poem.getCreationDate().getTime())));
+            poemBox.setCreationDateInMinute(((LocalDateTime.now().getMinute() - poem.getCreationDate().getMinute())));
             poemBox.setLastUpdateDate(poem.getLastUpdateDate());
             poemBox.setCommentCount(poem.getCommentCount());
             poemBox.setHowManyLikes(poem.getHowManyLikes());
@@ -386,7 +386,7 @@ public class PoemManager implements PoemService {
                     PoemCommentBox poemCommentBox = new PoemCommentBox();
                     poemCommentBox.setPoemCommentId(poemComment.getPoemCommentId());
                     poemCommentBox.setPoemCommentText(poemComment.getPoemCommentText());
-                    poemCommentBox.setCommentTimeInMinute(TimeUnit.MILLISECONDS.toMinutes((new Date()).getTime() - poemComment.getLastCommentUpdateTime().getTime()));
+                    poemCommentBox.setCommentTimeInMinute(((LocalDateTime.now().atZone(ZoneId.of("UTC+3"))).getMinute() - poemComment.getLastCommentUpdateTime().getMinute()));
                     poemCommentBox.setLastCommentUpdateTime(poemComment.getLastCommentUpdateTime());
                     poemCommentBox.setUsername(poemComment.getUser().getUsername());
                     poemCommentBox.setUserAvatar(poemComment.getUser().getAvatar().getImageUrl());

@@ -12,6 +12,8 @@ import lombok.AllArgsConstructor;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
+import java.time.ZoneId;
 import java.util.Date;
 import java.util.List;
 
@@ -23,7 +25,6 @@ public class CategoryManager implements CategoryService {
     private final CategoryRepo categoryRepo;
     private final UserService userService;
     private final CategoryValidation categoryValidation;
-    private final UserDetailsServiceImpl userDetailsService;
 
     @Override
     public DataResult<Category> read(String categoryTitle) {
@@ -47,7 +48,7 @@ public class CategoryManager implements CategoryService {
         Category category = new Category();
         category.setCreatorUsername(userService.findUserByUsername(currentUsername).getData().getUsername());
         category.setCategoryTitle(categoryTitle);
-        category.setCreationDate(new Date());
+        category.setCreationDate(LocalDateTime.now().atZone(ZoneId.of("UTC+3")));
         category.setActive(isActive);
         categoryRepo.save(category);
         return new SuccessResult(CategoryConstant.CATEGORY_CREATED);
@@ -61,7 +62,7 @@ public class CategoryManager implements CategoryService {
         }
         category.setUpdateUsername(userService.findUserByUsername(username).getData().getUsername());
         category.setCategoryTitle(newCategoryTitle);
-        category.setLastUpdateDate(new Date());
+        category.setLastUpdateDate(LocalDateTime.now().atZone(ZoneId.of("UTC+3")));
         category.setActive(isActive);
         categoryRepo.save(category);
         return new SuccessResult(CATEGORY_UPDATED);

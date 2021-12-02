@@ -6,6 +6,8 @@ import lombok.*;
 import org.hibernate.Hibernate;
 
 import javax.persistence.*;
+import java.time.LocalDateTime;
+import java.time.ZonedDateTime;
 import java.util.Date;
 import java.util.Objects;
 
@@ -19,7 +21,7 @@ public class Notice {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private long noticeId;
     private String noticeText;
-    private Date noticeTime;
+    private ZonedDateTime noticeTime;
     @ManyToOne
     @JoinColumn(name = "user_id")
     @JsonIgnore

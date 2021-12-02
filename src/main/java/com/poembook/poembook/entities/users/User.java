@@ -14,6 +14,8 @@ import lombok.ToString;
 
 import javax.persistence.*;
 import java.io.Serializable;
+import java.time.LocalDateTime;
+import java.time.ZonedDateTime;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
@@ -39,8 +41,8 @@ public class User implements Serializable {
     private String password;
     @Column(nullable = false, unique = true)
     private String email;
-    private Date lastLoginDate;
-    private Date joinDate;
+    private ZonedDateTime lastLoginDate;
+    private ZonedDateTime joinDate;
     private String role;
     @Column(length = 5000)
     private String authorities;

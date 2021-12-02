@@ -8,6 +8,8 @@ import lombok.Setter;
 import lombok.ToString;
 
 import javax.persistence.*;
+import java.time.LocalDateTime;
+import java.time.ZonedDateTime;
 import java.util.Date;
 
 @Getter
@@ -21,8 +23,8 @@ public class PoemComment {
     private long poemCommentId;
     @Column(length = 5000)
     private String poemCommentText;
-    private Date commentTime;
-    private Date lastCommentUpdateTime;
+    private ZonedDateTime commentTime;
+    private ZonedDateTime lastCommentUpdateTime;
     @ManyToOne
     @JoinColumn
     @JsonIgnore

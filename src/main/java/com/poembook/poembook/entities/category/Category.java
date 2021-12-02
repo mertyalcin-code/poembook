@@ -9,6 +9,8 @@ import lombok.ToString;
 
 import javax.persistence.*;
 import java.io.Serializable;
+import java.time.LocalDateTime;
+import java.time.ZonedDateTime;
 import java.util.Date;
 import java.util.List;
 
@@ -26,9 +28,9 @@ public class Category implements Serializable {
     @Column(nullable = false, unique = true)
     private String categoryTitle;
     private boolean isActive;
-    private Date creationDate;
+    private ZonedDateTime creationDate;
     private String creatorUsername;
-    private Date lastUpdateDate;
+    private ZonedDateTime lastUpdateDate;
     private String updateUsername;
     @OneToMany(mappedBy = "category")
     @JsonIgnore

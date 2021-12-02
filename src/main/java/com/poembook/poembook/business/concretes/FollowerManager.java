@@ -10,6 +10,8 @@ import com.poembook.poembook.repository.FollowersRepo;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
+import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -39,7 +41,7 @@ public class FollowerManager implements FollowerService {
         Follower newFollowers = new Follower();
         newFollowers.setFrom(fromUser);
         newFollowers.setTo(toUser);
-        newFollowers.setFollowTime(new Date());
+        newFollowers.setFollowTime(LocalDateTime.now().atZone(ZoneId.of("UTC+3")));
         followersRepo.save(newFollowers);
 
         noticeService.create((fromUser.getFirstName()+" "+fromUser.getLastName() + " artık seni takip ediyor."),to);

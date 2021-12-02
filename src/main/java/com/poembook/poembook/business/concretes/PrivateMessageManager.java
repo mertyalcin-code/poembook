@@ -11,6 +11,8 @@ import lombok.AllArgsConstructor;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
+import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.Date;
@@ -38,7 +40,7 @@ public class PrivateMessageManager implements PrivateMessageService {
         privateMessage.setFrom(fromUser);
         privateMessage.setTo(toUser);
         privateMessage.setMessage(message);
-        privateMessage.setPmTime(new Date());
+        privateMessage.setPmTime(LocalDateTime.now().atZone(ZoneId.of("UTC+3")));
         privateMessageRepo.save(privateMessage);
         return new SuccessResult("");
     }

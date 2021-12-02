@@ -12,6 +12,8 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 
 import javax.transaction.Transactional;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
 import java.util.Date;
 
 import static com.poembook.poembook.constant.UserConstant.FOUND_USER_BY_USERNAME;
@@ -39,7 +41,7 @@ public class AuthService extends UserDetailsServiceImpl {
             throw new UsernameNotFoundException(NO_USER_FOUND_BY_USERNAME + username);
         } else {
             validateLoginAttempt(user);
-            user.setLastLoginDate(new Date());
+            user.setLastLoginDate(LocalDateTime.now().atZone(ZoneId.of("UTC+3")));
             userRepo.save(user);
             UserPrincipal userPrincipal = new UserPrincipal(user);
             LOGGER.info(FOUND_USER_BY_USERNAME + username);

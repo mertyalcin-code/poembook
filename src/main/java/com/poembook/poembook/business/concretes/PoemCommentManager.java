@@ -11,6 +11,8 @@ import com.poembook.poembook.repository.PoemCommentRepo;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
+import java.time.ZoneId;
 import java.util.Date;
 import java.util.List;
 
@@ -48,8 +50,8 @@ public class PoemCommentManager implements PoemCommentService {
         poemComment.setPoemCommentText(poemCommentText);
         poemComment.setUser(userService.findUserByUsername(username).getData());
         poemComment.setPoem(poemService.findById(poemId).getData());
-        poemComment.setCommentTime(new Date());
-        poemComment.setLastCommentUpdateTime(new Date());
+        poemComment.setCommentTime(LocalDateTime.now().atZone(ZoneId.of("UTC+3")));
+        poemComment.setLastCommentUpdateTime(LocalDateTime.now().atZone(ZoneId.of("UTC+3")));
         poemCommentRepo.save(poemComment);
         poemService.updatePoemCommentCount(poemComment.getPoem());
         if(userService.findUserByUsername(username).getData()!=poemService.findById(poemId).getData().getUser()){
@@ -67,7 +69,7 @@ public class PoemCommentManager implements PoemCommentService {
             return new ErrorResult(COMMENT_NOT_FOUND);
         }
         poemComment.setPoemCommentText(poemCommentText);
-        poemComment.setLastCommentUpdateTime(new Date());
+        poemComment.setLastCommentUpdateTime(LocalDateTime.now().atZone(ZoneId.of("UTC+3")));
         poemCommentRepo.save(poemComment);
         return new SuccessResult(COMMENT_UPDATED);
     }
