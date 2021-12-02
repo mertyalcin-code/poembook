@@ -1,9 +1,6 @@
 package com.poembook.poembook.business.concretes;
 
-import com.poembook.poembook.business.abstracts.CategoryService;
-import com.poembook.poembook.business.abstracts.FollowerService;
-import com.poembook.poembook.business.abstracts.PoemService;
-import com.poembook.poembook.business.abstracts.UserService;
+import com.poembook.poembook.business.abstracts.*;
 import com.poembook.poembook.core.utilities.result.*;
 import com.poembook.poembook.core.utilities.validation.PoemValidation;
 import com.poembook.poembook.entities.category.Category;
@@ -13,23 +10,27 @@ import com.poembook.poembook.entities.poem.Poem;
 import com.poembook.poembook.entities.poem.PoemComment;
 import com.poembook.poembook.entities.poem.PoemLike;
 import com.poembook.poembook.entities.users.User;
+import com.poembook.poembook.repository.CategoryRepo;
 import com.poembook.poembook.repository.LikedPoemsRepo;
 import com.poembook.poembook.repository.PoemCommentRepo;
 import com.poembook.poembook.repository.PoemRepo;
 import lombok.AllArgsConstructor;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
-import java.time.ZoneOffset;
-import java.util.*;
-import java.util.concurrent.TimeUnit;
+import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.List;
+import java.util.Objects;
 
 import static com.poembook.poembook.constant.CategoryConstant.CATEGORY_NOT_FOUND;
 import static com.poembook.poembook.constant.FollowerConstant.NO_FOLLOWING_FOUND;
+import static com.poembook.poembook.constant.LoggerConstant.*;
 import static com.poembook.poembook.constant.PoemConstant.*;
 import static com.poembook.poembook.constant.UserConstant.USER_NOT_FOUND;
+import static com.poembook.poembook.constant.enumaration.Log.*;
 
 @Service
 @AllArgsConstructor
@@ -37,36 +38,27 @@ public class PoemManager implements PoemService {
     private PoemRepo poemRepo;
     private UserService userService;
     private CategoryService categoryService;
-    private PoemValidation poemValidation;
+    private CategoryRepo categoryRepo;
+    private PoemValidation validation;
     private FollowerService followerService;
     private PoemCommentRepo poemCommentRepo;
     private LikedPoemsRepo likedPoemsRepo;
+    private LoggerService logger;
 
+
+    //user Methods
     @Override
     public Result create(String poemTitle, String poemContent, String username, String categoryTitle) {
+        User user = userService.findUserByUsername(username).getData();
+        Category category = categoryRepo.findByCategoryTitle(categoryTitle);
+        if (!validation.validatePoemCreate(user, poemTitle, poemContent, username, categoryTitle).isSuccess()) {
+            return new ErrorResult(validation.validatePoemCreate(user, poemTitle, poemContent, username, categoryTitle).getMessage());
+        }
         Poem poem = new Poem();
         poem.setPoemTitle(poemTitle);
         poem.setPoemContent(poemContent);
-        User user = userService.findUserByUsername(username).getData();
         poem.setUser(user);
-        Category category = categoryService.findCategoryByCategoryTitle(categoryTitle).getData();
         poem.setCategory(category);
-        if (!poemValidation.isPoemTitleValid(poem)) {
-            return new ErrorResult(POEM_TITLE_NOT_VALID);
-        }
-        if (user == null) {
-            return new ErrorResult(USER_NOT_FOUND);
-        }
-        if (category == null) {
-            return new ErrorResult(CATEGORY_NOT_FOUND);
-        }
-        if (poemValidation.isPoemExist(poem)) {
-            return new ErrorResult(POEM_ALREADY_EXIST);
-        }
-
-        if (!poemValidation.isPoemContentValid(poem)) {
-            return new ErrorResult(POEM_CONTENT_INVALID);
-        }
         poem.setCreationDate(LocalDateTime.now().atZone(ZoneId.of("UTC+3")));
         poem.setCommentCount(0);
         poem.setActive(true);
@@ -74,87 +66,47 @@ public class PoemManager implements PoemService {
         poem.setHowManyLikes(0);
         poemRepo.save(poem);
         userService.updatePoemCount(poem.getUser());
+
+        logger.log(LOG_POEM_CREATE.toString(),
+                username + POEM_CREATED_LOG + poemTitle + PROCESS_OWNER + SecurityContextHolder.getContext().getAuthentication().getName()
+        );
         return new SuccessResult(POEM_CREATED);
+
     }
 
 
     @Override
     public Result update(Long poemId, String poemTitle, String poemContent, String currentUsername, String categoryTitle) {
         Poem poem = poemRepo.findByPoemId(poemId);
-        if (poem == null) {
-            return new ErrorResult(POEM_NOT_FOUND);
+        Category category = categoryRepo.findByCategoryTitle(categoryTitle);
+        if (!validation.validatePoemUpdate(poem, poemTitle, poemContent, currentUsername, categoryTitle).isSuccess()) {
+            return new ErrorResult(validation.validatePoemUpdate(poem, poemTitle, poemContent, currentUsername, categoryTitle).getMessage());
         }
-        Category category = categoryService.findCategoryByCategoryTitle(categoryTitle).getData();
         poem.setCategory(category);
-        if (category == null) {
-            return new ErrorResult(CATEGORY_NOT_FOUND);
-        }
-        if (!poemValidation.isPoemTitleValid(poem)) {
-            return new ErrorResult(POEM_TITLE_NOT_VALID);
-        }
-        if (!poemValidation.isPoemContentValid(poem)) {
-            return new ErrorResult(POEM_CONTENT_INVALID);
-        }
         poem.setPoemTitle(poemTitle);
         poem.setPoemContent(poemContent);
         poem.setLastUpdateDate(LocalDateTime.now().atZone(ZoneId.of("UTC+3")));
         poemRepo.save(poem);
+        logger.log(LOG_POEM_UPDATE.toString(),
+                currentUsername + POEM_UPDATED_LOG + poemTitle + PROCESS_OWNER + SecurityContextHolder.getContext().getAuthentication().getName()
+        );
         return new SuccessResult(POEM_UPDATED);
     }
 
     @Override
     public Result delete(Long id) {
-
         Poem deletedPoem = poemRepo.findByPoemId(id);
         if (deletedPoem == null) {
             return new ErrorResult(POEM_NOT_FOUND);
         }
-        List<PoemLike> likedPoems = deletedPoem.getLikedUsers();
-        if (likedPoems.size() > 0) {
-            likedPoemsRepo.deleteAll(likedPoems);
-        }
-        List<PoemComment> comments = deletedPoem.getPoemComments();
-        if (comments.size() > 0) {
-            poemCommentRepo.deleteAll(comments);
-        }
-
+        deletePoemData(deletedPoem);
         User user = deletedPoem.getUser();
         poemRepo.delete(deletedPoem);
         userService.updatePoemCount(user);
-
-
+        logger.log(LOG_POEM_DELETE.toString(),
+                deletedPoem.getUser().getUsername() + POEM_DELETED_LOG + deletedPoem.getPoemTitle() + PROCESS_OWNER + SecurityContextHolder.getContext().getAuthentication().getName()
+        );
         return new SuccessResult(POEM_DELETED);
-    }
-
-
-    @Override
-    public DataResult<List<Poem>> poetsAllPoem(String username) {
-        User user = userService.findUserByUsername(username).getData();
-        if (user == null) {
-            return new ErrorDataResult<>(USER_NOT_FOUND);
-        }
-        List<Poem> poems = user.getPoems();
-        if (poems.size() < 1) {
-            return new ErrorDataResult<>(NO_POEM_FOUND);
-        } else {
-            return new SuccessDataResult<>(poems, POEM_LISTED);
-        }
-    }
-
-    @Override
-    public DataResult<List<Poem>> poetsAllActivePoem(String username) {
-        User user = userService.findUserByUsername(username).getData();
-        if (user == null) {
-            return new ErrorDataResult<>(USER_NOT_FOUND);
-        }
-        List<Poem> poems = user.getPoems();
-        poems.removeIf(poem -> !poem.isActive());
-        if (poems.size() < 1) {
-            return new ErrorDataResult<>(NO_POEM_FOUND);
-
-        } else {
-            return new SuccessDataResult<>(poems, POEM_LISTED);
-        }
     }
 
 
@@ -167,6 +119,7 @@ public class PoemManager implements PoemService {
         List<PoemBox> bigList = new ArrayList<>();
         for (String following : followings) {
             List<Poem> poems = userService.findUserByUsername(following).getData().getPoems();
+            poems.removeIf(poem -> !poem.isActive());
             loadInfoToPoemBox(bigList, poems);
         }
         bigList.sort(Comparator.comparing(PoemBox::getCreationDate).reversed());
@@ -178,17 +131,17 @@ public class PoemManager implements PoemService {
             indexEnd = bigList.size();
         }
         bigList.subList(indexEnd, bigList.size()).clear();
-
-
         return new SuccessDataResult<>(bigList, POEM_LISTED);
     }
 
     @Override
     public DataResult<List<PoemBox>> listCategoriesPoemsByDate(String categoryTitle, int indexStart, int indexEnd) {
         List<Poem> poems = findAllByCategoryTitle(categoryTitle).getData();
-        if (poems == null) {
+
+        if (!findAllByCategoryTitle(categoryTitle).isSuccess()) {
             return new ErrorDataResult<>(POEM_NOT_FOUND);
         }
+        poems.removeIf(poem -> !poem.isActive());
         List<PoemBox> bigList = new ArrayList<>();
         loadInfoToPoemBox(bigList, poems);
         bigList.sort(Comparator.comparing(PoemBox::getCreationDate).reversed());
@@ -196,40 +149,25 @@ public class PoemManager implements PoemService {
         if (indexEnd > bigList.size()) {
             indexEnd = bigList.size();
         }
-
-
         return new SuccessDataResult<>(bigList.subList(indexStart, indexEnd), POEM_LISTED);
     }
 
 
     @Override
     public DataResult<List<PoemBox>> list20MostLikedPoems() {
-        List<Poem> poems = findAllPoem().getData();
-        poems.sort(Comparator.comparing(Poem::getHowManyLikes).reversed());
-        if (poems.size() > 20) {
-            poems.subList(20, poems.size()).clear();
-        }
-        List<PoemBox> bigList = new ArrayList<>();
-        loadInfoToPoemBox(bigList, poems);
-        return new SuccessDataResult<>(bigList, POEM_LISTED);
+        return getListPopulerPoems(Comparator.comparing(Poem::getHowManyLikes));
     }
 
     @Override
     public DataResult<List<PoemBox>> list20MostCommentsPoems() {
-        List<Poem> poems = findAllPoem().getData();
-        poems.sort(Comparator.comparing(Poem::getCommentCount).reversed());
-        if (poems.size() > 20) {
-            poems.subList(20, poems.size()).clear();
-        }
-        List<PoemBox> bigList = new ArrayList<>();
-        loadInfoToPoemBox(bigList, poems);
-        return new SuccessDataResult<>(bigList, POEM_LISTED);
+        return getListPopulerPoems(Comparator.comparing(Poem::getCommentCount));
     }
 
     @Override
     public DataResult<List<PoemBox>> searchPoems(String search) {
         search = search.toLowerCase();
         List<Poem> poems = findAllPoem().getData();
+        poems.removeIf(poem -> !poem.isActive());
         poems.sort(Comparator.comparing(Poem::getCreationDate).reversed());
         List<Poem> newPoems = new ArrayList<>();
         for (Poem poem : poems) {
@@ -242,20 +180,13 @@ public class PoemManager implements PoemService {
         }
         List<PoemBox> bigList = new ArrayList<>();
         loadInfoToPoemBox(bigList, newPoems);
+
+        logger.log(LOG_POEM_SEARCH.toString(),
+                SecurityContextHolder.getContext().getAuthentication().getName() + POEM_SEARCH_LOG + search
+        );
         return new SuccessDataResult<>(bigList, POEM_LISTED);
     }
 
-
-    @Override
-    public DataResult<Poem> findById(Long id) {
-        Poem poem = poemRepo.findByPoemId(id);
-        if (poem == null) {
-            return new ErrorDataResult<>(POEM_NOT_FOUND);
-        }
-
-        return new SuccessDataResult<>(poem, POEM_LISTED);
-
-    }
 
     @Override
     public DataResult<List<Poem>> findAllByCategoryTitle(String categoryTitle) {
@@ -264,56 +195,12 @@ public class PoemManager implements PoemService {
             return new ErrorDataResult<>(CATEGORY_NOT_FOUND);
         }
         List<Poem> poems = poemRepo.findAllByCategory(category);
+        poems.removeIf(poem -> !poem.isActive());
         if (poems.size() < 1) {
             return new ErrorDataResult<>(POEM_NOT_FOUND);
         } else {
             return new SuccessDataResult<>(poems, POEM_LISTED);
         }
-    }
-
-    public void updatePoemCommentCount(Poem poem) {
-        poem.setCommentCount(poem.getPoemComments().size());
-        poemRepo.save(poem);
-    }
-
-    public void updatePoemLikeCount(Poem poem) {
-        poem.setHowManyLikes(poem.getLikedUsers().size());
-        poemRepo.save(poem);
-    }
-
-    @Override
-    public DataResult<List<Poem>> findAllPoem() {
-        List<Poem> poems = poemRepo.findAll();
-        System.out.println(poems);
-        if (poems.size() < 1) {
-            return new ErrorDataResult<>(POEM_NOT_FOUND);
-        }
-        return new SuccessDataResult<>(poems, POEM_LISTED);
-    }
-
-    @Override
-    public Result adminUpdate(Long poemId, String poemTitle, String poemContent, String currentUsername, String categoryTitle, boolean isActive) {
-        Poem poem = poemRepo.findByPoemId(poemId);
-        if (poem == null) {
-            return new ErrorResult(POEM_NOT_FOUND);
-        }
-        Category category = categoryService.findCategoryByCategoryTitle(categoryTitle).getData();
-        poem.setCategory(category);
-        if (category == null) {
-            return new ErrorResult(CATEGORY_NOT_FOUND);
-        }
-        if (!poemValidation.isPoemTitleValid(poem)) {
-            return new ErrorResult(POEM_TITLE_NOT_VALID);
-        }
-        if (!poemValidation.isPoemContentValid(poem)) {
-            return new ErrorResult(POEM_CONTENT_INVALID);
-        }
-        poem.setPoemTitle(poemTitle);
-        poem.setActive(isActive);
-        poem.setPoemContent(poemContent);
-        poem.setLastUpdateDate(LocalDateTime.now().atZone(ZoneId.of("UTC+3")));
-        poemRepo.save(poem);
-        return new SuccessResult(POEM_UPDATED);
     }
 
     @Override
@@ -352,15 +239,76 @@ public class PoemManager implements PoemService {
     @Override
     public DataResult<PoemBox> getPoemWithPoemBox(Long poemId) {
         List<Poem> poems = new ArrayList<>();
-       Poem poem=findById(poemId).getData();
-       if(poem==null){
-           return new ErrorDataResult<>(POEM_NOT_FOUND);
-       }
+        Poem poem = findById(poemId).getData();
+        if (poem == null) {
+            return new ErrorDataResult<>(POEM_NOT_FOUND);
+        }
         poems.add(poem);
         List<PoemBox> bigList = new ArrayList<>();
         loadInfoToPoemBox(bigList, poems);
         return new SuccessDataResult<>(bigList.get(0), POEM_LISTED);
     }
+
+    //Editor Methods
+    @Override
+    public DataResult<List<Poem>> poetsAllPoem(String username) {
+        User user = userService.findUserByUsername(username).getData();
+        if (user == null) {
+            return new ErrorDataResult<>(USER_NOT_FOUND);
+        }
+        List<Poem> poems = user.getPoems();
+        if (poems.size() < 1) {
+            return new ErrorDataResult<>(NO_POEM_FOUND);
+        } else {
+            return new SuccessDataResult<>(poems, POEM_LISTED);
+        }
+    }
+
+    @Override
+    public DataResult<List<Poem>> poetsAllActivePoem(String username) {
+        User user = userService.findUserByUsername(username).getData();
+        if (user == null) {
+            return new ErrorDataResult<>(USER_NOT_FOUND);
+        }
+        List<Poem> poems = user.getPoems();
+        poems.removeIf(poem -> !poem.isActive());
+        if (poems.size() < 1) {
+            return new ErrorDataResult<>(NO_POEM_FOUND);
+
+        } else {
+            return new SuccessDataResult<>(poems, POEM_LISTED);
+        }
+    }
+
+    @Override
+    public Result adminUpdate(Long poemId, String poemTitle, String poemContent, String currentUsername, String categoryTitle, boolean isActive) {
+        Poem poem = poemRepo.findByPoemId(poemId);
+        Category category = categoryService.findCategoryByCategoryTitle(categoryTitle).getData();
+        if (!validation.validateAdminUpdate(poem, poemTitle, poemContent, currentUsername, categoryTitle).isSuccess()) {
+            return new ErrorResult(validation.validateAdminUpdate(poem, poemTitle, poemContent, currentUsername, categoryTitle).getMessage());
+        }
+        poem.setCategory(category);
+        poem.setPoemTitle(poemTitle);
+        poem.setActive(isActive);
+        poem.setPoemContent(poemContent);
+        poem.setLastUpdateDate(LocalDateTime.now().atZone(ZoneId.of("UTC+3")));
+        poemRepo.save(poem);
+        logger.log(LOG_POEM_UPDATE.toString(),
+                currentUsername + POEM_UPDATED_LOG + poemTitle + PROCESS_OWNER + SecurityContextHolder.getContext().getAuthentication().getName()
+        );
+        return new SuccessResult(POEM_UPDATED);
+    }
+
+    @Override
+    public DataResult<List<Poem>> findAllPoem() {
+        List<Poem> poems = poemRepo.findAll();
+        if (poems.size() < 1) {
+            return new ErrorDataResult<>(POEM_NOT_FOUND);
+        }
+        return new SuccessDataResult<>(poems, POEM_LISTED);
+    }
+
+    //helpers
     private void loadInfoToPoemBox(List<PoemBox> bigList, List<Poem> poems) {
         for (Poem poem : poems) {
             PoemBox poemBox = new PoemBox();
@@ -412,4 +360,47 @@ public class PoemManager implements PoemService {
     }
 
 
+    private void deletePoemData(Poem deletedPoem) {
+        List<PoemLike> likedPoems = deletedPoem.getLikedUsers();
+        if (likedPoems.size() > 0) {
+            likedPoemsRepo.deleteAll(likedPoems);
+        }
+        List<PoemComment> comments = deletedPoem.getPoemComments();
+        if (comments.size() > 0) {
+            poemCommentRepo.deleteAll(comments);
+        }
+    }
+
+    private DataResult<List<PoemBox>> getListPopulerPoems(Comparator<Poem> comparing) {
+        List<Poem> poems = findAllPoem().getData();
+        poems.removeIf(poem -> !poem.isActive());
+        poems.sort(comparing.reversed());
+        if (poems.size() > 20) {
+            poems.subList(20, poems.size()).clear();
+        }
+        List<PoemBox> bigList = new ArrayList<>();
+        loadInfoToPoemBox(bigList, poems);
+        return new SuccessDataResult<>(bigList, POEM_LISTED);
+    }
+
+    @Override
+    public DataResult<Poem> findById(Long id) {
+        Poem poem = poemRepo.findByPoemId(id);
+        if (poem == null) {
+            return new ErrorDataResult<>(POEM_NOT_FOUND);
+        }
+
+        return new SuccessDataResult<>(poem, POEM_LISTED);
+
+    }
+
+    public void updatePoemCommentCount(Poem poem) {
+        poem.setCommentCount(poem.getPoemComments().size());
+        poemRepo.save(poem);
+    }
+
+    public void updatePoemLikeCount(Poem poem) {
+        poem.setHowManyLikes(poem.getLikedUsers().size());
+        poemRepo.save(poem);
+    }
 }

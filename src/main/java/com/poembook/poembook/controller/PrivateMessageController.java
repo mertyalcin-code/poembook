@@ -14,28 +14,31 @@ public class PrivateMessageController {
     private PrivateMessageService privateMessageService;
 
     @PostMapping("/send")
-    public Result send (@RequestParam String fromUsername,
-                        @RequestParam String toUsername,
-                        @RequestParam String message
+    public Result send(@RequestParam String fromUsername,
+                       @RequestParam String toUsername,
+                       @RequestParam String message
 
     ) {
-        return privateMessageService.sendMessage(fromUsername,toUsername,message);
+        return privateMessageService.sendMessage(fromUsername, toUsername, message);
     }
+
     @PostMapping("/list/{username}")
-    public Result usersAllMessages (@PathVariable String username
+    public Result usersAllMessages(@PathVariable String username
 
     ) {
         return privateMessageService.usersAllMessages(username);
     }
+
     @PostMapping("/list-all-messages")
-    public Result usersAllMessagesWith (@RequestParam String username,
-                        @RequestParam String withUsername
+    public Result usersAllMessagesWith(@RequestParam String username,
+                                       @RequestParam String withUsername
 
     ) {
-        return privateMessageService.usersAllMessagesWith(username,withUsername);
+        return privateMessageService.usersAllMessagesWith(username, withUsername);
     }
+
     @GetMapping("/list-message-list/{username}")
-    public Result usersMessageList (@PathVariable String username
+    public Result usersMessageList(@PathVariable String username
     ) {
         return privateMessageService.usersMessageList(username);
     }

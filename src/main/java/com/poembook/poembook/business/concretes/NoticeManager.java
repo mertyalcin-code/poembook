@@ -11,7 +11,6 @@ import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
 import java.time.ZoneId;
-import java.util.Date;
 import java.util.List;
 
 import static com.poembook.poembook.constant.NoticeConstant.*;
@@ -25,27 +24,27 @@ public class NoticeManager implements NoticeService {
 
 
     @Override
-    public Result create(String notice,String username) {
-        if(notice==null){
+    public Result create(String notice, String username) {
+        if (notice == null) {
             return new ErrorResult(NOTICE_CANNOT_BE_NULL);
         }
         User user = userRepo.findUserByUsername(username);
-        if(user==null){
+        if (user == null) {
             return new ErrorResult(USER_NOT_FOUND);
         }
         Notice newNotice = new Notice();
         newNotice.setNoticeText(notice);
         newNotice.setUser(user);
         newNotice.setNoticeTime(LocalDateTime.now().atZone(ZoneId.of("UTC+3"))
-                );
+        );
         noticeRepo.save(newNotice);
         return new SuccessResult(NOTICE_CREATED);
     }
 
     @Override
     public Result delete(Long id) {
-       Notice deletedNotice = noticeRepo.findByNoticeId(id);
-        if (deletedNotice ==null){
+        Notice deletedNotice = noticeRepo.findByNoticeId(id);
+        if (deletedNotice == null) {
             return new ErrorResult(NOTICE_NOT_FOUND);
         }
         noticeRepo.delete(deletedNotice);
@@ -55,11 +54,11 @@ public class NoticeManager implements NoticeService {
     @Override
     public Result deleteAll(String username) {
         User user = userRepo.findUserByUsername(username);
-        if(user==null){
+        if (user == null) {
             return new ErrorResult(USER_NOT_FOUND);
         }
         List<Notice> notices = noticeRepo.findAllByUser(user);
-        if(notices ==null){
+        if (notices == null) {
             return new ErrorResult((NOTICE_NOT_FOUND));
         }
         noticeRepo.deleteAll(notices);
@@ -69,13 +68,13 @@ public class NoticeManager implements NoticeService {
     @Override
     public DataResult<List<Notice>> listAll(String username) {
         User user = userRepo.findUserByUsername(username);
-        if(user==null){
+        if (user == null) {
             return new ErrorDataResult<>(USER_NOT_FOUND);
         }
         List<Notice> notices = noticeRepo.findAllByUser(user);
-        if(notices ==null){
+        if (notices == null) {
             return new ErrorDataResult<>((NOTICE_NOT_FOUND));
         }
-        return new SuccessDataResult<>(notices,NOTICE_LISTED);
+        return new SuccessDataResult<>(notices, NOTICE_LISTED);
     }
 }

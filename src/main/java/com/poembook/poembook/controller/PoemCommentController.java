@@ -29,7 +29,7 @@ public class PoemCommentController {
 
     @PostMapping("/update")
     public Result update(@RequestParam String currentUsername,
-                        @RequestParam String poemCommentText,
+                         @RequestParam String poemCommentText,
                          @RequestParam Long poemCommentId
     ) {
         return poemCommentService.update(poemCommentId, poemCommentText);
@@ -50,7 +50,6 @@ public class PoemCommentController {
     public DataResult<List<PoemComment>> listPoemsComments(@PathVariable Long poemId) {
         return poemCommentService.listPoemsComments(poemId);
     }
-
 
 
 }

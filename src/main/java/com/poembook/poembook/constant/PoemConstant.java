@@ -2,8 +2,6 @@ package com.poembook.poembook.constant;
 
 public class PoemConstant {
     public static final String NO_POEM_FOUND = "Şiir Bulunamadı";
-    public static final String POEM_CONTENT_NOT_BE_EMPTY = "Şiir içeriği Boş olamaz";
-    public static final String POEM_TITLE_NOT_BE_EMPTY = "Şiir başlığı Boş olamaz";
     public static final String POEM_NOT_FOUND = "Şiir bulunamadı";
     public static final String POEM_CREATED = "Şiir oluşturuldu";
     public static final String POEM_UPDATED = "Şiir güncellendi";

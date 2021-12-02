@@ -28,6 +28,7 @@ public class EmailService {
         smtpTransport.sendMessage(message, message.getAllRecipients());
         smtpTransport.close();
     }
+
     public void sendNewForgetPasswordEmail(String firstName, String url, String email) throws MessagingException {
         Message message = createForgetPasswordEmail(firstName, url, email);
         SMTPTransport smtpTransport = (SMTPTransport) getEmailSession().getTransport(SIMPLE_MAIL_TRANSFER_PROTOCOL);
@@ -48,6 +49,7 @@ public class EmailService {
 
         return message;
     }
+
     private Message createForgetPasswordEmail(String firstName, String url, String email) throws MessagingException {
         Message message = new MimeMessage(getEmailSession());
         message.setFrom(new InternetAddress(FROM_EMAIL));

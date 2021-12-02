@@ -6,17 +6,16 @@ import com.poembook.poembook.entities.dtos.profile.ProfileUser;
 import com.poembook.poembook.entities.users.User;
 
 import javax.mail.MessagingException;
-import javax.xml.crypto.Data;
 import java.util.List;
 
 public interface UserService {
-    Result addUser(String currentUsername,String firstName, String lastName, String username, String email, String role, boolean isNonLocked, boolean isActive) throws MessagingException;
+    Result addUser(String currentUsername, String firstName, String lastName, String username, String email, String role, boolean isNonLocked, boolean isActive) throws MessagingException;
 
     Result register(String firstName, String lastName, String username, String email) throws MessagingException;
 
     Result updateUser(String adminUsername, String userUsername, String newFirstName, String newLastName, String newUsername, String newEmail, String role, boolean isNonLocked, boolean isActive);
 
-    Result selfUpdate(String currentUsername,String newFirstname, String newLastname,String facebookAccount, String twitterAccount, String instagramAccount, String aboutMe);
+    Result selfUpdate(String currentUsername, String newFirstname, String newLastname, String facebookAccount, String twitterAccount, String instagramAccount, String aboutMe);
 
     Result deleteUser(String username);
 
@@ -58,5 +57,6 @@ public interface UserService {
 
     DataResult<List<User>> populerPoets();
 
+    DataResult<List<User>> mostPoemOwners();
 }
 

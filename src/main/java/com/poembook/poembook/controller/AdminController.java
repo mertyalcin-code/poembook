@@ -30,7 +30,7 @@ public class AdminController {
             @RequestParam("role") String role,
             @RequestParam("isActive") String isActive,
             @RequestParam("isNonLocked") String isNonLocked) throws MessagingException {
-        return userService.addUser(currentUsername,firstName, lastName, username, email, role, Boolean.parseBoolean(isNonLocked), Boolean.parseBoolean(isActive));
+        return userService.addUser(currentUsername, firstName, lastName, username, email, role, Boolean.parseBoolean(isNonLocked), Boolean.parseBoolean(isActive));
     }
 
     @PostMapping("/update")
@@ -86,7 +86,6 @@ public class AdminController {
     public Result resetPassword(@PathVariable("password") String password) throws MessagingException {
         return userService.resetPassword(password);
     }
-
 
 
     @GetMapping("/list/username/{username}")

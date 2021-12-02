@@ -1,8 +1,6 @@
 package com.poembook.poembook.constant.enumaration;
 
 
-import lombok.Data;
-
 import static com.poembook.poembook.auth.constant.Authority.*;
 
 public enum Role {

@@ -1,9 +1,8 @@
 package com.poembook.poembook.business.concretes;
 
 import com.poembook.poembook.business.abstracts.LoggerService;
-import com.poembook.poembook.constant.enumaration.Log;
 import com.poembook.poembook.core.utilities.result.*;
-import com.poembook.poembook.entities.log.PostgreSqlLog;
+import com.poembook.poembook.entities.log.Log;
 import com.poembook.poembook.repository.PostgreSqlLoggerRepo;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -11,39 +10,42 @@ import org.springframework.stereotype.Service;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
 
-import static com.poembook.poembook.constant.LogConstant.*;
+import static com.poembook.poembook.constant.LoggerConstant.*;
 
 @Service
 @AllArgsConstructor
 public class PostgreSqlLogger implements LoggerService {
     private PostgreSqlLoggerRepo postgreSqlLoggerRepo;
+
     @Override
     public void log(String logType, String message) {
-        PostgreSqlLog postgreSqlLog = new PostgreSqlLog();
-        postgreSqlLog.setLogType(logType);
-        postgreSqlLog.setMessage(message);
-        postgreSqlLog.setLogTime(LocalDateTime.now().atZone(ZoneId.of("UTC+3")));
-        postgreSqlLoggerRepo.save(postgreSqlLog);
+        Log log = new Log();
+        log.setLogType(logType);
+        log.setMessage(message);
+        log.setLogTime(LocalDateTime.now().atZone(ZoneId.of("UTC+3")));
+        postgreSqlLoggerRepo.save(log);
     }
 
     @Override
-    public DataResult<List<PostgreSqlLog>> findAll() {
-        List<PostgreSqlLog> logs = postgreSqlLoggerRepo.findAll();
-        if(logs.size()<1){
-            return new ErrorDataResult<>(" Log bulunamadı");
+    public DataResult<List<Log>> findAll() {
+        List<Log> logs = postgreSqlLoggerRepo.findAll();
+        if (logs.size() < 1) {
+            return new ErrorDataResult<>(LOG_NOT_FOUND);
         }
-        return new SuccessDataResult<>(logs,"Loglar listelendi");
+        return new SuccessDataResult<>(logs, LOG_LISTED);
     }
 
     @Override
-    public DataResult<List<PostgreSqlLog>> findAllByLogType(String logType) {
-        List<PostgreSqlLog> logs = postgreSqlLoggerRepo.findAllByLogType(logType);
-        if(logs==null){
-            return new ErrorDataResult<>(" Log bulunamadı");
+    public DataResult<List<Log>> findAllByLogType(String logType) {
+        List<Log> logs = postgreSqlLoggerRepo.findAllByLogType(logType);
+        if (logs == null) {
+            return new ErrorDataResult<>(LOG_NOT_FOUND);
         }
-    return new SuccessDataResult<>(logs,"Loglar listelendi");
+        return new SuccessDataResult<>(logs, LOG_LISTED);
     }
 
     @Override
@@ -68,10 +70,10 @@ public class PostgreSqlLogger implements LoggerService {
     @Override
     public DataResult<List<String>> listLogTypes() {
         List<String> types = new ArrayList<>();
-     for(Log type :Log.class.getEnumConstants()){
-         types.add(type.toString());
-     }
+        for (com.poembook.poembook.constant.enumaration.Log type : com.poembook.poembook.constant.enumaration.Log.class.getEnumConstants()) {
+            types.add(type.toString());
+        }
 
-            return new SuccessDataResult<>(types,"listed");
+        return new SuccessDataResult<>(types, LOG_LISTED);
     }
 }

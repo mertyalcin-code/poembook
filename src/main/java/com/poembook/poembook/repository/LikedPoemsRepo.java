@@ -9,7 +9,9 @@ import java.util.List;
 
 public interface LikedPoemsRepo extends JpaRepository<PoemLike, Long> {
     PoemLike findByUserAndPoem(User user, Poem poem);
+
     List<PoemLike> findByUser(User user);
+
     PoemLike findByLikedPoemId(Long id);
 
 }

@@ -7,9 +7,12 @@ import com.poembook.poembook.entities.notification.Notice;
 import java.util.List;
 
 public interface NoticeService {
-    Result create(String notice,String username);
+    Result create(String notice, String username);
+
     Result delete(Long id);
+
     Result deleteAll(String username);
+
     DataResult<List<Notice>> listAll(String username);
 
 }

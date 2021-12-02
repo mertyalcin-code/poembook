@@ -6,7 +6,10 @@ import com.poembook.poembook.core.utilities.result.Result;
 import com.poembook.poembook.entities.notification.Notice;
 import lombok.AllArgsConstructor;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
 
@@ -19,12 +22,13 @@ public class NoticeController {
 
     @PostMapping("/delete")
     public Result delete(@RequestParam String currentUsername,
-                      @RequestParam Long noticeId
+                         @RequestParam Long noticeId
 
     ) {
 
         return noticeService.delete(noticeId);
     }
+
     @PostMapping("/delete-all")
     public Result delete(@RequestParam String currentUsername,
                          @RequestParam String username
@@ -32,6 +36,7 @@ public class NoticeController {
     ) {
         return noticeService.deleteAll(username);
     }
+
     @PostMapping("/list-all")
     public DataResult<List<Notice>> listAll(@RequestParam String currentUsername,
                                             @RequestParam String username

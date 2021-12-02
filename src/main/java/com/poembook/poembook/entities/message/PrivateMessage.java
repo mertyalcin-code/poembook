@@ -1,14 +1,13 @@
 package com.poembook.poembook.entities.message;
 
 import com.poembook.poembook.entities.users.User;
-import lombok.*;
-import org.hibernate.Hibernate;
+import lombok.Getter;
+import lombok.RequiredArgsConstructor;
+import lombok.Setter;
+import lombok.ToString;
 
 import javax.persistence.*;
-import java.time.LocalDateTime;
 import java.time.ZonedDateTime;
-import java.util.Date;
-import java.util.Objects;
 
 @Getter
 @Setter

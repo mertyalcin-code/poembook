@@ -12,7 +12,6 @@ import org.springframework.http.HttpStatus;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
-import java.util.Date;
 
 import static com.poembook.poembook.constant.HttpResponseConstant.HTTP_RESPONSE_PATTERN;
 

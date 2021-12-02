@@ -33,6 +33,7 @@ public class CategoryController {
     public DataResult<Category> readCategoryByCategoryTitle(@PathVariable String categoryTitle) {
         return categoryService.read(categoryTitle);
     }
+
     @GetMapping("/category-id/{id}")
     public DataResult<Category> readCategoryById(@PathVariable int id) {
         return categoryService.findCategoryById(id);

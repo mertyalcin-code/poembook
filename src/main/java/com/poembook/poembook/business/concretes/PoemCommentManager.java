@@ -13,7 +13,6 @@ import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
 import java.time.ZoneId;
-import java.util.Date;
 import java.util.List;
 
 import static com.poembook.poembook.constant.CommentConstant.*;
@@ -27,6 +26,7 @@ public class PoemCommentManager implements PoemCommentService {
     private final PoemService poemService;
     private final UserService userService;
     private final NoticeService noticeService;
+
     @Override
     public DataResult<PoemComment> read(Long poemCommentId) {
         PoemComment poemComment = poemCommentRepo.findByPoemCommentId(poemCommentId);
@@ -54,10 +54,10 @@ public class PoemCommentManager implements PoemCommentService {
         poemComment.setLastCommentUpdateTime(LocalDateTime.now().atZone(ZoneId.of("UTC+3")));
         poemCommentRepo.save(poemComment);
         poemService.updatePoemCommentCount(poemComment.getPoem());
-        if(userService.findUserByUsername(username).getData()!=poemService.findById(poemId).getData().getUser()){
-            noticeService.create(userService.findUserByUsername(username).getData().getFirstName()+" "+
-                            userService.findUserByUsername(username).getData().getLastName()+" şiirine yorum yaptı"
-                    ,poemService.findById(poemId).getData().getUser().getUsername());
+        if (userService.findUserByUsername(username).getData() != poemService.findById(poemId).getData().getUser()) {
+            noticeService.create(userService.findUserByUsername(username).getData().getFirstName() + " " +
+                            userService.findUserByUsername(username).getData().getLastName() + " şiirine yorum yaptı"
+                    , poemService.findById(poemId).getData().getUser().getUsername());
         }
         return new SuccessResult(COMMENT_CREATED);
     }

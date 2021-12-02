@@ -14,4 +14,6 @@ public class EmailConstant {
     public static final String SMTP_STARTTLS_ENABLE = "mail.smtp.starttls.enable";
     public static final String SMTP_STARTTLS_REQUIRED = "mail.smtp.starttls.required";
 
+    public static final String EMAIL_SEND_SUCCESS = "Mail adresinize Aktivasyon kodu gönderildi";
+
 }

@@ -1,12 +1,12 @@
 package com.poembook.poembook.entities.users;
 
-import lombok.*;
-import org.hibernate.Hibernate;
+import lombok.Getter;
+import lombok.RequiredArgsConstructor;
+import lombok.Setter;
+import lombok.ToString;
 
 import javax.persistence.*;
-import java.time.LocalDateTime;
 import java.time.ZonedDateTime;
-import java.util.Objects;
 
 @Entity
 @Getter
@@ -16,7 +16,7 @@ import java.util.Objects;
 public class PasswordReset {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private  long passwordResetId;
+    private long passwordResetId;
     private String email;
     @Column(unique = true)
     private String code;

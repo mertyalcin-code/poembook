@@ -1,7 +1,7 @@
 package com.poembook.poembook.business.concretes;
 
+import com.poembook.poembook.business.abstracts.FollowerService;
 import com.poembook.poembook.business.abstracts.LoggerService;
-import com.poembook.poembook.business.abstracts.NoticeService;
 import com.poembook.poembook.business.abstracts.UserService;
 import com.poembook.poembook.constant.LoggerConstant;
 import com.poembook.poembook.constant.enumaration.Log;
@@ -13,8 +13,6 @@ import com.poembook.poembook.entities.dtos.profile.ProfileFollowers;
 import com.poembook.poembook.entities.dtos.profile.ProfileFollowings;
 import com.poembook.poembook.entities.dtos.profile.ProfileUser;
 import com.poembook.poembook.entities.poem.Poem;
-import com.poembook.poembook.entities.poem.PoemComment;
-import com.poembook.poembook.entities.poem.PoemLike;
 import com.poembook.poembook.entities.users.Avatar;
 import com.poembook.poembook.entities.users.Follower;
 import com.poembook.poembook.entities.users.PasswordReset;
@@ -24,7 +22,6 @@ import lombok.AllArgsConstructor;
 import org.apache.commons.lang3.RandomStringUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.core.parameters.P;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -32,11 +29,14 @@ import javax.mail.MessagingException;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.util.ArrayList;
-import java.util.Date;
+import java.util.Comparator;
 import java.util.List;
 
+import static com.poembook.poembook.constant.EmailConstant.EMAIL_SEND_SUCCESS;
+import static com.poembook.poembook.constant.LoggerConstant.FORGET_PASSWORD_LOG;
 import static com.poembook.poembook.constant.LoggerConstant.PROCESS_OWNER;
 import static com.poembook.poembook.constant.UserConstant.*;
+import static com.poembook.poembook.constant.enumaration.Log.LOG_FORGET_PASSWORD;
 
 @AllArgsConstructor
 @Service
@@ -44,7 +44,7 @@ public class UserManager implements UserService {
     private final LoggerService logger;
     private final UserRepo userRepo;
     private final BCryptPasswordEncoder passwordEncoder;
-    private final UserValidation userRegistrationValidation;
+    private final UserValidation validation;
     private final PoemRepo poemRepo;
     private final LikedPoemsRepo likedPoemsRepo;
     private final PoemCommentRepo poemCommentRepo;
@@ -53,75 +53,18 @@ public class UserManager implements UserService {
     private final PasswordResetRepo passwordResetRepo;
     private final NoticeRepo noticeRepo;
     private final PrivateMessageRepo privateMessageRepo;
-    @Override
-    public Result addUser(String currentUsername,
-                          String firstName,
-                          String lastName,
-                          String username,
-                          String email,
-                          String role,
-                          boolean isNonLocked,
-                          boolean isActive) throws MessagingException {
-        if (userRegistrationValidation.isUsernameExist(username)) {
-            return new ErrorResult(USERNAME_ALREADY_EXISTS);
-        }
-        if (userRegistrationValidation.isEmailExist(email)) {
-            return new ErrorResult(EMAIL_ALREADY_EXISTS);
-        }
-        if (!userRegistrationValidation.isUsernameValid(username)) {
-            return new ErrorResult(USERNAME_INVALID);
-        }
-        if (!userRegistrationValidation.isEmailValid(email)) {
-            return new ErrorResult(EMAIL_INVALID);
-        }
-        if (!findUserByUsername(currentUsername).getData().getRole().equals("ROLE_SUPER_ADMIN") && role.equals("ROLE_SUPER_ADMIN")) {
-            return new ErrorResult("Süper admin oluşturman için süper admin olman gerekiyor");
-        }
+    private final FollowerService followerService;
 
-        User user = new User();
-        String password = generatePassword();
-        user.setUserId(generateUserId());
-        user.setFirstName(firstName);
-        user.setLastName(lastName);
-        user.setJoinDate(LocalDateTime.now().atZone(ZoneId.of("UTC+3")));
-        user.setUsername(username);
-        user.setEmail(email);
-        user.setPassword(encodePassword(password));
-        user.setPoemCounts(0);
-        user.setActive(isActive);
-        user.setNotLocked(isNonLocked);
-        user.setRole(getRoleEnumName(role).name());
-        user.setAvatar(new Avatar(DEFAULT_AVATAR_URL, LocalDateTime.now().atZone(ZoneId.of("UTC+3")), user));
-        user.setAuthorities(getRoleEnumName(role).getAuthorities());
-        userRepo.save(user);
-        Follower firstFollower = new Follower();
-        firstFollower.setFollowTime(LocalDateTime.now().atZone(ZoneId.of("UTC+3")));
-        firstFollower.setFrom(user);
-        firstFollower.setTo(user);
-        followersRepo.save(firstFollower);
-        emailService.sendNewPasswordEmail(firstName, password, email);
-        logger.log(Log.LOG_USER_ADD.toString(),LoggerConstant.USER_CREATED+user.getUsername()+PROCESS_OWNER+currentUsername);
-        return new SuccessResult(USER_CREATED);
-    }
-
+    //Auth methods
     @Override
     public Result register(String firstName,
                            String lastName,
                            String username,
                            String email) throws MessagingException {
-        if (userRegistrationValidation.isUsernameExist(username)) {
-            return new ErrorResult(USERNAME_ALREADY_EXISTS);
-        }
-        if (userRegistrationValidation.isEmailExist(email)) {
-            return new ErrorResult(EMAIL_ALREADY_EXISTS);
-        }
-        if (!userRegistrationValidation.isUsernameValid(username)) {
-            return new ErrorResult(USERNAME_INVALID);
-        }
-        if (!userRegistrationValidation.isEmailValid(email)) {
-            return new ErrorResult(EMAIL_INVALID);
-        }
 
+        if (!validation.validateUserRegistration(firstName, lastName, username, email).isSuccess()) {
+            return new ErrorResult(validation.validateUserRegistration(firstName, lastName, username, email).getMessage());
+        }
         User user = new User();
         user.setUserId(generateUserId());
         String password = generatePassword();
@@ -137,14 +80,71 @@ public class UserManager implements UserService {
         user.setRole(Role.ROLE_POET.name());
         user.setAuthorities(Role.ROLE_POET.getAuthorities());
         user.setAvatar(new Avatar(DEFAULT_AVATAR_URL, LocalDateTime.now().atZone(ZoneId.of("UTC+3")), user));
-        userRepo.save(user);
-        Follower firstFollower = new Follower();
-        firstFollower.setFollowTime(LocalDateTime.now().atZone(ZoneId.of("UTC+3")));
-        firstFollower.setFrom(user);
-        firstFollower.setTo(user);
-        followersRepo.save(firstFollower);
-        emailService.sendNewPasswordEmail(firstName, password, email);
-        logger.log(Log.LOG_USER_REGISTRATION.toString(),LoggerConstant.USER_CREATED+PROCESS_OWNER+username);
+        makeFirstFollower(firstName, email, user, password);
+        logger.log(Log.LOG_USER_REGISTRATION.toString(), LoggerConstant.USER_CREATED_LOG + PROCESS_OWNER + username);
+        return new SuccessResult(USER_CREATED);
+    }
+
+    @Override
+    public Result forgetPassword(String email) throws MessagingException {
+        User user = userRepo.findUserByEmail(email);
+        if (user == null) {
+            return new ErrorResult(USER_NOT_FOUND);
+        }
+        PasswordReset passwordReset = new PasswordReset();
+        passwordReset.setEmail(email);
+        passwordReset.setCreationDate(LocalDateTime.now().atZone(ZoneId.of("UTC+3")));
+        passwordReset.setCode(RandomStringUtils.randomAlphanumeric(30));
+        passwordResetRepo.save(passwordReset);
+        String url = WEB_SITE_URL + "/forget-password/code/" + passwordReset.getCode();
+        emailService.sendNewForgetPasswordEmail(user.getFirstName(), url, email);
+        logger.log(LOG_FORGET_PASSWORD.toString(),
+                FORGET_PASSWORD_LOG + email
+        );
+        return new SuccessResult(EMAIL_SEND_SUCCESS);
+    }
+
+    @Override
+    public Result resetPasswordWithCode(String code) throws MessagingException {
+        PasswordReset passwordReset = passwordResetRepo.findByCode(code);
+        if (passwordReset == null) {
+            return new ErrorResult(PASSWORD_RESET_LINK_BROKEN);
+        }
+        resetPassword(passwordReset.getEmail());
+        passwordResetRepo.delete(passwordResetRepo.findByCode(code));
+        return new SuccessResult(PASSWORD_RESET_MESSAGE);
+    }
+
+    // Admin Methods
+    @Override
+    public Result addUser(String currentUsername,
+                          String firstName,
+                          String lastName,
+                          String username,
+                          String email,
+                          String role,
+                          boolean isNonLocked,
+                          boolean isActive) throws MessagingException {
+        if (!validation.validateUserAdd(currentUsername, firstName, lastName, username, email, role).isSuccess()) {
+            return new ErrorResult(validation.validateUserAdd(currentUsername, firstName, lastName, username, email, role).getMessage());
+        }
+        User user = new User();
+        String password = generatePassword();
+        user.setUserId(generateUserId());
+        user.setFirstName(firstName);
+        user.setLastName(lastName);
+        user.setJoinDate(LocalDateTime.now().atZone(ZoneId.of("UTC+3")));
+        user.setUsername(username);
+        user.setEmail(email);
+        user.setPassword(encodePassword(password));
+        user.setPoemCounts(0);
+        user.setActive(isActive);
+        user.setNotLocked(isNonLocked);
+        user.setRole(getRoleEnumName(role).name());
+        user.setAvatar(new Avatar(DEFAULT_AVATAR_URL, LocalDateTime.now().atZone(ZoneId.of("UTC+3")), user));
+        user.setAuthorities(getRoleEnumName(role).getAuthorities());
+        makeFirstFollower(firstName, email, user, password);
+        logger.log(Log.LOG_USER_ADD.toString(), LoggerConstant.USER_CREATED_LOG + user.getUsername() + PROCESS_OWNER + currentUsername);
         return new SuccessResult(USER_CREATED);
     }
 
@@ -158,25 +158,10 @@ public class UserManager implements UserService {
                              String role,
                              boolean isNonLocked,
                              boolean isActive) {
-        User currentUser = findUserByUsername(userUsername).getData();
-        if (userRegistrationValidation.isUsernameExist(newUsername) && !StringUtils.equals(userUsername, newUsername)) {
-            return new ErrorResult(USERNAME_ALREADY_EXISTS);
+        if (!validation.validateUpdateUser(adminUsername, userUsername, newFirstName, newLastName, newUsername, newEmail, role).isSuccess()) {
+            return new ErrorResult(validation.validateUpdateUser(adminUsername, userUsername, newFirstName, newLastName, newUsername, newEmail, role).getMessage());
         }
-        if (userRegistrationValidation.isEmailExist(newEmail) && !StringUtils.equals(newEmail, currentUser.getEmail())) {
-            return new ErrorResult(EMAIL_ALREADY_EXISTS);
-        }
-        if (!userRegistrationValidation.isUsernameValid(newUsername)) {
-            return new ErrorResult(USERNAME_INVALID);
-        }
-        if (!userRegistrationValidation.isEmailValid(newEmail)) {
-            return new ErrorResult(EMAIL_INVALID);
-        }
-        if (!findUserByUsername(adminUsername).getData().getRole().equals("ROLE_SUPER_ADMIN") && role.equals("ROLE_SUPER_ADMIN")) {
-            return new ErrorResult("Süper admin oluşturman için süper admin olman gerekiyor");
-        }
-        if (findUserByUsername(userUsername).getData().getRole().equals("ROLE_SUPER_ADMIN") && !findUserByUsername(adminUsername).getData().getRole().equals("ROLE_SUPER_ADMIN")) {
-            return new ErrorResult("Süper admini güncelleyebilmen için süper admin olman gerekiyor");
-        }
+        User currentUser = userRepo.findUserByUsername(userUsername);
         currentUser.setFirstName(newFirstName);
         currentUser.setLastName(newLastName);
         currentUser.setUsername(newUsername);
@@ -186,54 +171,9 @@ public class UserManager implements UserService {
         currentUser.setRole(getRoleEnumName(role).name());
         currentUser.setAuthorities(getRoleEnumName(role).getAuthorities());
         userRepo.save(currentUser);
-        logger.log(Log.LOG_USER_UPDATE.toString(),LoggerConstant.USER_UPDATED+userUsername+PROCESS_OWNER+adminUsername);
+        logger.log(Log.LOG_USER_UPDATE.toString(), LoggerConstant.USER_UPDATED_LOG + userUsername + PROCESS_OWNER + adminUsername);
         return new SuccessResult(USER_UPDATED);
     }
-
-    @Override
-    public Result selfUpdate(String currentUsername, String newFirstname, String newLastname, String facebookAccount, String twitterAccount, String instagramAccount, String aboutMe) {
-        User currentUser = findUserByUsername(currentUsername).getData();
-        currentUser.setFirstName(newFirstname);
-        currentUser.setLastName(newLastname);
-        currentUser.setFacebookAccount(facebookAccount);
-        currentUser.setTwitterAccount(twitterAccount);
-        currentUser.setInstagramAccount(instagramAccount);
-        currentUser.setAboutMe(aboutMe);
-        userRepo.save(currentUser);
-        logger.log(Log.LOG_USER_SELF_UPDATE.toString(),LoggerConstant.USER_UPDATED+currentUsername+PROCESS_OWNER+currentUsername);
-        return new SuccessResult(USER_UPDATED);
-    }
-
-    @Override
-    public Result deleteUser(String username) {
-        User user = userRepo.findUserByUsername(username);
-        if (user == null) {
-            return new ErrorResult(USER_NOT_FOUND);
-        }
-
-
-        deleteUsersData(user);
-        userRepo.deleteById(user.getUserId());
-        logger.log(Log.LOG_USER_DELETE.toString(),LoggerConstant.USER_DELETED+username+PROCESS_OWNER+
-                SecurityContextHolder.getContext().getAuthentication().getName());
-        return new SuccessResult(USER_DELETED);
-    }
-
-    private void deleteUsersData(User user) {
-        privateMessageRepo.deleteAll(privateMessageRepo.findAllByFrom(user));
-        privateMessageRepo.deleteAll(privateMessageRepo.findAllByTo(user));
-        noticeRepo.deleteAll(noticeRepo.findAllByUser(user));
-        followersRepo.deleteAll(followersRepo.findAllByFrom(user));
-        followersRepo.deleteAll(followersRepo.findAllByTo(user));
-        likedPoemsRepo.deleteAll(likedPoemsRepo.findByUser(user));
-
-        for (Poem deletedPoem : user.getPoems()) {
-                likedPoemsRepo.deleteAll(deletedPoem.getLikedUsers());
-                poemCommentRepo.deleteAll(deletedPoem.getPoemComments());
-        }
-            poemRepo.deleteAll(user.getPoems());
-    }
-
 
     @Override
     public Result resetPassword(String email) throws MessagingException {
@@ -245,25 +185,145 @@ public class UserManager implements UserService {
         user.setPassword(encodePassword(password));
         userRepo.save(user);
         emailService.sendNewPasswordEmail(user.getFirstName(), password, user.getEmail());
-        logger.log(Log.LOG_RESET_PASSWORD.toString(),LoggerConstant.RESET_PASSWORD+email+PROCESS_OWNER+
+        logger.log(Log.LOG_RESET_PASSWORD.toString(), LoggerConstant.RESET_PASSWORD_LOG + email + PROCESS_OWNER +
                 SecurityContextHolder.getContext().getAuthentication().getName());
         return new SuccessResult(PASSWORD_RESET);
     }
 
     @Override
-    public Result changePassword(String username, String newPassword) {
+    public DataResult<List<User>> getAllUsers() {
+        List<User> users = userRepo.findAll();
+        if (users.size() < 1) {
+            return new ErrorDataResult<>(USER_NOT_FOUND);
+        }
+        return new SuccessDataResult<>(users, USER_LISTED);
+    }
+
+    @Override
+    public DataResult<List<User>> getAllPoets() {
+        List<User> users = userRepo.findAllByRole("ROLE_POET");
+        if (users.size() < 1) {
+            return new ErrorDataResult<>(USER_NOT_FOUND);
+        }
+        return new SuccessDataResult<>(users, USER_LISTED);
+
+    }
+
+
+    @Override
+    public DataResult<List<User>> getAllEditors() {
+        List<User> users = userRepo.findAllByRole("ROLE_EDITOR");
+        if (users.size() < 1) {
+            return new ErrorDataResult<>(USER_NOT_FOUND);
+        }
+        return new SuccessDataResult<>(users, USER_LISTED);
+
+    }
+
+    @Override
+    public DataResult<List<User>> getAllAdmins() {
+        List<User> users = userRepo.findAllByRole("ROLE_ADMIN");
+        if (users.size() < 1) {
+            return new ErrorDataResult<>(USER_NOT_FOUND);
+        }
+        return new SuccessDataResult<>(users, USER_LISTED);
+    }
+
+    @Override
+    public DataResult<List<User>> getAllSuperAdmins() {
+        List<User> users = userRepo.findAllByRole("ROLE_SUPER_ADMIN");
+        if (users.size() < 1) {
+            return new ErrorDataResult<>(USER_NOT_FOUND);
+        }
+        return new SuccessDataResult<>(users, USER_LISTED);
+    }
+
+    //Super Admin Methods
+
+    @Override
+    public Result deleteUser(String username) {
+        User user = userRepo.findUserByUsername(username);
+        if (user == null) {
+            return new ErrorResult(USER_NOT_FOUND);
+        }
+        deleteUsersData(user);
+        userRepo.deleteById(user.getUserId());
+        logger.log(Log.LOG_USER_DELETE.toString(), LoggerConstant.USER_DELETED_LOG + username + PROCESS_OWNER +
+                SecurityContextHolder.getContext().getAuthentication().getName());
+        return new SuccessResult(USER_DELETED);
+    }
+
+    @Override
+    public Result makeSuperAdmin(String username) {
         User user = findUserByUsername(username).getData();
         if (user == null) {
             return new ErrorResult(USER_NOT_FOUND);
         }
+        user.setRole(Role.ROLE_SUPER_ADMIN.name());
+        user.setAuthorities(Role.ROLE_SUPER_ADMIN.getAuthorities());
+        return new SuccessResult(MAKE_SUPER_ADMIN_SUCCESS + username);
+    }
+
+    //User Methods
+    @Override
+    public Result selfUpdate(String currentUsername, String newFirstname, String newLastname, String facebookAccount, String twitterAccount, String instagramAccount, String aboutMe) {
+        if (!validation.validateSelfUpdate(currentUsername, newFirstname, newLastname, facebookAccount, twitterAccount, instagramAccount, aboutMe).isSuccess()) {
+            return new ErrorResult(validation.validateUpdateUser(currentUsername, newFirstname, newLastname, facebookAccount, twitterAccount, instagramAccount, aboutMe).getMessage());
+        }
+        User currentUser = findUserByUsername(currentUsername).getData();
+        currentUser.setFirstName(newFirstname);
+        currentUser.setLastName(newLastname);
+        currentUser.setFacebookAccount(facebookAccount);
+        currentUser.setTwitterAccount(twitterAccount);
+        currentUser.setInstagramAccount(instagramAccount);
+        currentUser.setAboutMe(aboutMe);
+        userRepo.save(currentUser);
+        logger.log(Log.LOG_USER_SELF_UPDATE.toString(), LoggerConstant.USER_UPDATED_LOG + currentUsername + PROCESS_OWNER + currentUsername);
+        return new SuccessResult(USER_UPDATED);
+    }
+
+    @Override
+    public Result changePassword(String username, String newPassword) {
+        User user = findUserByUsername(username).getData();
+        if (!validation.validateChangePassword(user, newPassword).isSuccess()) {
+            return new ErrorResult(validation.validateChangePassword(user, newPassword).getMessage());
+        }
         user.setPassword(encodePassword(newPassword));
         userRepo.save(user);
-        logger.log(Log.LOG_CHANGE_PASSWORD.toString(),LoggerConstant.CHANGE_PASSWORD+PROCESS_OWNER+
+        logger.log(Log.LOG_CHANGE_PASSWORD.toString(), LoggerConstant.CHANGE_PASSWORD_LOG + PROCESS_OWNER +
                 username);
         return new SuccessResult(PASSWORD_CHANGE);
 
     }
 
+    @Override
+    public Result changeEmail(String currentUsername, String newEmail) {
+        User user = findUserByUsername(currentUsername).getData();
+        if (!validation.validateChangeEmail(user, currentUsername, newEmail).isSuccess()) {
+            return new ErrorResult(validation.validateChangeEmail(user, currentUsername, newEmail).getMessage());
+        }
+        user.setEmail(newEmail);
+        userRepo.save(user);
+        logger.log(Log.LOG_CHANGE_EMAIL.toString(),
+                user.getUsername() + LoggerConstant.CHANGE_EMAIL_LOG + newEmail + PROCESS_OWNER + currentUsername);
+        return new SuccessResult(EMAIL_UPDATED);
+    }
+
+    @Override
+    public Result changeUsername(String currentUsername, String newUsername) {
+        User user = findUserByUsername(currentUsername).getData();
+        if (!validation.validateChangeUsername(user, currentUsername, newUsername).isSuccess()) {
+            return new ErrorResult(validation.validateChangeUsername(user, currentUsername, newUsername).getMessage());
+        }
+
+        user.setUsername(newUsername);
+        userRepo.save(user);
+        logger.log(Log.LOG_CHANGE_USERNAME.toString(), currentUsername + user.getUsername() + LoggerConstant.CHANGE_USERNAME_LOG + newUsername + PROCESS_OWNER +
+                currentUsername);
+        return new SuccessResult(USERNAME_UPDATED);
+    }
+
+    //dtos
     @Override
     public DataResult<ProfileUser> getUserProfile(String username) {
         User user = userRepo.findUserByUsername(username);
@@ -321,52 +381,70 @@ public class UserManager implements UserService {
         return new SuccessDataResult<>(profileUser, USER_LISTED);
     }
 
+
     @Override
-    public DataResult<List<User>> getAllUsers() {
+    public DataResult<List<User>> populerPoets() {
+
+        return null;
+    }
+
+    @Override
+    public DataResult<List<User>> mostPoemOwners() {
         List<User> users = userRepo.findAll();
-        if (users.size() < 1) {
-            return new ErrorDataResult<>(USER_NOT_FOUND);
+        if (users.size() < 5) {
+            return new ErrorDataResult<>();
         }
-        return new SuccessDataResult<>(users, USER_LISTED);
+        users.sort(Comparator.comparing(User::getPoemCounts).reversed());
+        users.subList(0, 4);
+        return new SuccessDataResult<>(users, "");
     }
 
-    @Override
-    public DataResult<List<User>> getAllPoets() {
-        List<User> users = userRepo.findAllByRole("ROLE_POET");
-        if (users.size() < 1) {
-            return new ErrorDataResult<>(USER_NOT_FOUND);
+    //Helpers
+    private void makeFirstFollower(String firstName, String email, User user, String password) throws MessagingException {
+        userRepo.save(user);
+        Follower firstFollower = new Follower();
+        firstFollower.setFollowTime(LocalDateTime.now().atZone(ZoneId.of("UTC+3")));
+        firstFollower.setFrom(user);
+        firstFollower.setTo(user);
+        followersRepo.save(firstFollower);
+        emailService.sendNewPasswordEmail(firstName, password, email);
+    }
+
+    private void deleteUsersData(User user) {
+        privateMessageRepo.deleteAll(privateMessageRepo.findAllByFrom(user));
+        privateMessageRepo.deleteAll(privateMessageRepo.findAllByTo(user));
+        noticeRepo.deleteAll(noticeRepo.findAllByUser(user));
+        followersRepo.deleteAll(followersRepo.findAllByFrom(user));
+        followersRepo.deleteAll(followersRepo.findAllByTo(user));
+        likedPoemsRepo.deleteAll(likedPoemsRepo.findByUser(user));
+
+        for (Poem deletedPoem : user.getPoems()) {
+            likedPoemsRepo.deleteAll(deletedPoem.getLikedUsers());
+            poemCommentRepo.deleteAll(deletedPoem.getPoemComments());
         }
-        return new SuccessDataResult<>(users, USER_LISTED);
+        poemRepo.deleteAll(user.getPoems());
+    }
+
+    private Role getRoleEnumName(String role) {
+        return Role.valueOf(role.toUpperCase());
+    }
+
+    private String encodePassword(String password) {
+        return passwordEncoder.encode(password);
+    }
+
+    private String generatePassword() {
+        return RandomStringUtils.randomAlphanumeric(10);
 
     }
 
-
-    @Override
-    public DataResult<List<User>> getAllEditors() {
-        List<User> users = userRepo.findAllByRole("ROLE_EDITOR");
-        if (users.size() < 1) {
-            return new ErrorDataResult<>(USER_NOT_FOUND);
-        }
-        return new SuccessDataResult<>(users, USER_LISTED);
-
+    private Long generateUserId() {
+        return Long.valueOf(RandomStringUtils.randomNumeric(10));
     }
 
-    @Override
-    public DataResult<List<User>> getAllAdmins() {
-        List<User> users = userRepo.findAllByRole("ROLE_ADMIN");
-        if (users.size() < 1) {
-            return new ErrorDataResult<>(USER_NOT_FOUND);
-        }
-        return new SuccessDataResult<>(users, USER_LISTED);
-    }
-
-    @Override
-    public DataResult<List<User>> getAllSuperAdmins() {
-        List<User> users = userRepo.findAllByRole("ROLE_SUPER_ADMIN");
-        if (users.size() < 1) {
-            return new ErrorDataResult<>(USER_NOT_FOUND);
-        }
-        return new SuccessDataResult<>(users, USER_LISTED);
+    public void updatePoemCount(User user) {
+        user.setPoemCounts(user.getPoems().size());
+        userRepo.save(user);
     }
 
     @Override
@@ -401,30 +479,6 @@ public class UserManager implements UserService {
 
     }
 
-    private Role getRoleEnumName(String role) {
-        return Role.valueOf(role.toUpperCase());
-    }
-
-    private String encodePassword(String password) {
-        return passwordEncoder.encode(password);
-    }
-
-    private String generatePassword() {
-        return RandomStringUtils.randomAlphanumeric(10);
-
-    }
-
-    private Long generateUserId() {
-        return Long.valueOf(RandomStringUtils.randomNumeric(10));
-    }
-
-    public void updatePoemCount(User user) {
-        user.setPoemCounts(user.getPoems().size());
-        userRepo.save(user);
-    }
-
-
-
     @Override
     public void updateUserLoginDate(String username) {
         User user = findUserByUsername(username).getData();
@@ -433,86 +487,6 @@ public class UserManager implements UserService {
 
     }
 
-    @Override
-    public Result changeEmail(String currentUsername, String newEmail) {
-        User user = findUserByUsername(currentUsername).getData();
-        if (user == null) {
-            return new ErrorResult(USER_NOT_FOUND);
-        }
-        if (!userRegistrationValidation.isEmailValid(newEmail)) {
-            return new ErrorResult(EMAIL_INVALID);
-        }
-        if (userRegistrationValidation.isEmailExist(newEmail)) {
-            return new ErrorResult(EMAIL_ALREADY_EXISTS);
-        }
-        user.setEmail(newEmail);
-        userRepo.save(user);
-        logger.log(Log.LOG_CHANGE_EMAIL.toString(),user.getUsername()+LoggerConstant.CHANGE_EMAIL+newEmail+PROCESS_OWNER+
-                currentUsername);
-        return new SuccessResult(EMAIL_UPDATED);
-    }
-
-    @Override
-    public Result changeUsername(String currentUsername, String newUsername) {
-        User user = findUserByUsername(currentUsername).getData();
-        if (user == null) {
-            return new ErrorResult(USER_NOT_FOUND);
-        }
-        if (userRegistrationValidation.isUsernameValid(newUsername)) {
-            return new ErrorResult(USERNAME_INVALID);
-        }
-        if (userRegistrationValidation.isUsernameExist(newUsername)) {
-            return new ErrorResult(USERNAME_ALREADY_EXISTS);
-        }
-        user.setUsername(newUsername);
-        userRepo.save(user);
-        logger.log(Log.LOG_CHANGE_USERNAME.toString(),currentUsername+user.getUsername()+LoggerConstant.CHANGE_USERNAME+newUsername+PROCESS_OWNER+
-                currentUsername);
-        return new SuccessResult(USERNAME_UPDATED);
-    }
-
-    @Override
-    public Result makeSuperAdmin(String username) {
-        User user = findUserByUsername(username).getData();
-        if(user==null){
-            return new ErrorResult(USER_NOT_FOUND);
-        }
-        user.setRole(Role.ROLE_SUPER_ADMIN.name());
-        user.setAuthorities(Role.ROLE_SUPER_ADMIN.getAuthorities());
-        return new SuccessResult("Artık Süper Admin: "+username);
-    }
-
-    @Override
-    public Result forgetPassword(String email) throws MessagingException {
-      User user=  userRepo.findUserByEmail(email);
-        if(user==null){
-            return new ErrorResult(USER_NOT_FOUND);
-        }
-        PasswordReset passwordReset = new PasswordReset();
-        passwordReset.setEmail(email);
-        passwordReset.setCreationDate(LocalDateTime.now().atZone(ZoneId.of("UTC+3")));
-        passwordReset.setCode(RandomStringUtils.randomAlphanumeric(30));
-        passwordResetRepo.save(passwordReset);
-        String url = "https://poembook-app.herokuapp.com/forget-password/code/"+passwordReset.getCode();
-        emailService.sendNewForgetPasswordEmail(user.getFirstName(),url,email);
-        return new SuccessResult("Mail adresinize Aktivasyon kodu gönderildi");
-    }
-
-    @Override
-    public Result resetPasswordWithCode(String code) throws MessagingException {
-        PasswordReset passwordReset = passwordResetRepo.findByCode(code);
-       if(passwordReset==null){
-           return new ErrorResult("Hatalı link");
-       }
-       resetPassword(passwordReset.getEmail());
-       passwordResetRepo.delete(passwordResetRepo.findByCode(code));
-       return new SuccessResult("Şifren sıfırlandı ve mail adresine yenisi gönderildi.");
-    }
-
-    @Override
-    public DataResult<List<User>> populerPoets() {
-        return null; //en fazla takipçiye sahip 5 kullanıcı gelsin
-    }
 
 }
 
