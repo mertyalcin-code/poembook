@@ -23,8 +23,7 @@ public class EditorController {
     private PoemRepo poemRepo;
 
     @PostMapping("/category/add")
-    public Result createCategory(@Valid
-                                 @RequestParam String categoryTitle,
+    public Result createCategory(@RequestParam String categoryTitle,
                                  @RequestParam String currentUsername,
                                  @RequestParam boolean isActive) {
         return categoryService.create(categoryTitle, currentUsername, isActive);
