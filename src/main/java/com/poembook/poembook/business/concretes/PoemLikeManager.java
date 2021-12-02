@@ -34,7 +34,7 @@ public class PoemLikeManager implements PoemLikeService {
             return new ErrorResult(POEM_ALREADY_LIKED);
         }
         PoemLike likedPoem = new PoemLike();
-        likedPoem.setLikedAt(LocalDateTime.now().atZone(ZoneId.of("UTC+3")));
+        likedPoem.setLikedAt(LocalDateTime.now().atZone(ZoneId.of("UTC")));
         likedPoem.setUser(user);
         likedPoem.setPoem(poem);
         likedPoemsRepo.save(likedPoem);

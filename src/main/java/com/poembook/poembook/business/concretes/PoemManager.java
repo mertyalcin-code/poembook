@@ -59,10 +59,10 @@ public class PoemManager implements PoemService {
         poem.setPoemContent(poemContent);
         poem.setUser(user);
         poem.setCategory(category);
-        poem.setCreationDate(LocalDateTime.now().atZone(ZoneId.of("UTC+3")));
+        poem.setCreationDate(LocalDateTime.now().atZone(ZoneId.of("UTC")));
         poem.setCommentCount(0);
         poem.setActive(true);
-        poem.setLastUpdateDate(LocalDateTime.now().atZone(ZoneId.of("UTC+3")));
+        poem.setLastUpdateDate(LocalDateTime.now().atZone(ZoneId.of("UTC")));
         poem.setHowManyLikes(0);
         poemRepo.save(poem);
         userService.updatePoemCount(poem.getUser());
@@ -85,7 +85,7 @@ public class PoemManager implements PoemService {
         poem.setCategory(category);
         poem.setPoemTitle(poemTitle);
         poem.setPoemContent(poemContent);
-        poem.setLastUpdateDate(LocalDateTime.now().atZone(ZoneId.of("UTC+3")));
+        poem.setLastUpdateDate(LocalDateTime.now().atZone(ZoneId.of("UTC")));
         poemRepo.save(poem);
         logger.log(LOG_POEM_UPDATE.toString(),
                 currentUsername + POEM_UPDATED_LOG + poemTitle + PROCESS_OWNER + SecurityContextHolder.getContext().getAuthentication().getName()
@@ -291,7 +291,7 @@ public class PoemManager implements PoemService {
         poem.setPoemTitle(poemTitle);
         poem.setActive(isActive);
         poem.setPoemContent(poemContent);
-        poem.setLastUpdateDate(LocalDateTime.now().atZone(ZoneId.of("UTC+3")));
+        poem.setLastUpdateDate(LocalDateTime.now().atZone(ZoneId.of("UTC")));
         poemRepo.save(poem);
         logger.log(LOG_POEM_UPDATE.toString(),
                 currentUsername + POEM_UPDATED_LOG + poemTitle + PROCESS_OWNER + SecurityContextHolder.getContext().getAuthentication().getName()
@@ -317,7 +317,7 @@ public class PoemManager implements PoemService {
             poemBox.setPoemContent(poem.getPoemContent());
             poemBox.setActive(poem.isActive());
             poemBox.setCreationDate(poem.getCreationDate());
-            poemBox.setCreationDateInMinute(((LocalDateTime.now().atZone(ZoneId.of("UTC+3")).getMinute() - poem.getCreationDate().getMinute())));
+            poemBox.setCreationDateInMinute(((LocalDateTime.now().atZone(ZoneId.of("UTC")).getMinute() - poem.getCreationDate().getMinute())));
             poemBox.setLastUpdateDate(poem.getLastUpdateDate());
             poemBox.setCommentCount(poem.getCommentCount());
             poemBox.setHowManyLikes(poem.getHowManyLikes());
@@ -334,7 +334,7 @@ public class PoemManager implements PoemService {
                     PoemCommentBox poemCommentBox = new PoemCommentBox();
                     poemCommentBox.setPoemCommentId(poemComment.getPoemCommentId());
                     poemCommentBox.setPoemCommentText(poemComment.getPoemCommentText());
-                    poemCommentBox.setCommentTimeInMinute(((LocalDateTime.now().atZone(ZoneId.of("UTC+3"))).getMinute() - poemComment.getLastCommentUpdateTime().getMinute()));
+                    poemCommentBox.setCommentTimeInMinute(((LocalDateTime.now().atZone(ZoneId.of("UTC"))).getMinute() - poemComment.getLastCommentUpdateTime().getMinute()));
                     poemCommentBox.setLastCommentUpdateTime(poemComment.getLastCommentUpdateTime());
                     poemCommentBox.setUsername(poemComment.getUser().getUsername());
                     poemCommentBox.setUserAvatar(poemComment.getUser().getAvatar().getImageUrl());

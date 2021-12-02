@@ -41,7 +41,7 @@ public class FollowerManager implements FollowerService {
         Follower newFollowers = new Follower();
         newFollowers.setFrom(fromUser);
         newFollowers.setTo(toUser);
-        newFollowers.setFollowTime(LocalDateTime.now().atZone(ZoneId.of("UTC+3")));
+        newFollowers.setFollowTime(LocalDateTime.now().atZone(ZoneId.of("UTC")));
         followersRepo.save(newFollowers);
 
         noticeService.create((fromUser.getFirstName() + " " + fromUser.getLastName() + NOTICE_NOW_FOLLOWING), to);

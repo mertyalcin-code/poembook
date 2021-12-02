@@ -70,14 +70,14 @@ public class UserManager implements UserService {
         user.setLastName(StringUtils.capitalize(lastName));
         user.setUsername(username);
         user.setEmail(email);
-        user.setJoinDate(LocalDateTime.now().atZone(ZoneId.of("UTC+3")));
+        user.setJoinDate(LocalDateTime.now().atZone(ZoneId.of("UTC")));
         user.setPassword(encodePassword(password));
         user.setPoemCounts(0);
         user.setActive(true);
         user.setNotLocked(true);
         user.setRole(Role.ROLE_POET.name());
         user.setAuthorities(Role.ROLE_POET.getAuthorities());
-        user.setAvatar(new Avatar(DEFAULT_AVATAR_URL, LocalDateTime.now().atZone(ZoneId.of("UTC+3")), user));
+        user.setAvatar(new Avatar(DEFAULT_AVATAR_URL, LocalDateTime.now().atZone(ZoneId.of("UTC")), user));
         makeFirstFollower(firstName, email, user, password);
         logger.log(Log.LOG_USER_REGISTRATION.toString(), LoggerConstant.USER_CREATED_LOG + PROCESS_OWNER + username);
         return new SuccessResult(USER_CREATED);
@@ -91,7 +91,7 @@ public class UserManager implements UserService {
         }
         PasswordReset passwordReset = new PasswordReset();
         passwordReset.setEmail(email);
-        passwordReset.setCreationDate(LocalDateTime.now().atZone(ZoneId.of("UTC+3")));
+        passwordReset.setCreationDate(LocalDateTime.now().atZone(ZoneId.of("UTC")));
         passwordReset.setCode(RandomStringUtils.randomAlphanumeric(30));
         passwordResetRepo.save(passwordReset);
         String url = WEB_SITE_URL + "/forget-password/code/" + passwordReset.getCode();
@@ -131,7 +131,7 @@ public class UserManager implements UserService {
         user.setUserId(generateUserId());
         user.setFirstName(firstName);
         user.setLastName(lastName);
-        user.setJoinDate(LocalDateTime.now().atZone(ZoneId.of("UTC+3")));
+        user.setJoinDate(LocalDateTime.now().atZone(ZoneId.of("UTC")));
         user.setUsername(username);
         user.setEmail(email);
         user.setPassword(encodePassword(password));
@@ -139,7 +139,7 @@ public class UserManager implements UserService {
         user.setActive(isActive);
         user.setNotLocked(isNonLocked);
         user.setRole(getRoleEnumName(role).name());
-        user.setAvatar(new Avatar(DEFAULT_AVATAR_URL, LocalDateTime.now().atZone(ZoneId.of("UTC+3")), user));
+        user.setAvatar(new Avatar(DEFAULT_AVATAR_URL, LocalDateTime.now().atZone(ZoneId.of("UTC")), user));
         user.setAuthorities(getRoleEnumName(role).getAuthorities());
         makeFirstFollower(firstName, email, user, password);
         logger.log(Log.LOG_USER_ADD.toString(), LoggerConstant.USER_CREATED_LOG + user.getUsername() + PROCESS_OWNER + currentUsername);
@@ -401,7 +401,7 @@ public class UserManager implements UserService {
     private void makeFirstFollower(String firstName, String email, User user, String password) throws MessagingException {
         userRepo.save(user);
         Follower firstFollower = new Follower();
-        firstFollower.setFollowTime(LocalDateTime.now().atZone(ZoneId.of("UTC+3")));
+        firstFollower.setFollowTime(LocalDateTime.now().atZone(ZoneId.of("UTC")));
         firstFollower.setFrom(user);
         firstFollower.setTo(user);
         followersRepo.save(firstFollower);
@@ -480,7 +480,7 @@ public class UserManager implements UserService {
     @Override
     public void updateUserLoginDate(String username) {
         User user = findUserByUsername(username).getData();
-        user.setLastLoginDate(LocalDateTime.now().atZone(ZoneId.of("UTC+3")));
+        user.setLastLoginDate(LocalDateTime.now().atZone(ZoneId.of("UTC")));
         userRepo.save(user);
 
     }

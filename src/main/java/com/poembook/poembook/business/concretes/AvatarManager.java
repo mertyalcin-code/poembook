@@ -67,7 +67,7 @@ public class AvatarManager implements AvatarService {
         Avatar avatar = new Avatar();
         avatar.setImageUrl(result.getData().get("url"));
         avatar.setPublic_id(result.getData().get("public_id"));
-        avatar.setUploadedDate(LocalDateTime.now().atZone(ZoneId.of("UTC+3")));
+        avatar.setUploadedDate(LocalDateTime.now().atZone(ZoneId.of("UTC")));
         user.setAvatar(avatar);
         userRepo.save(user);
         logger.log(LOG_AVATAR_CREATE.toString(),

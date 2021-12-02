@@ -29,7 +29,7 @@ public class HttpResponse {
     private String message;
 
     public HttpResponse(int httpStatusCode, HttpStatus httpStatus, String reason, String message) {
-        this.timeStamp = LocalDateTime.now().atZone(ZoneId.of("UTC+3"));
+        this.timeStamp = LocalDateTime.now().atZone(ZoneId.of("UTC"));
         this.httpStatusCode = httpStatusCode;
         this.httpStatus = httpStatus;
         this.reason = reason;

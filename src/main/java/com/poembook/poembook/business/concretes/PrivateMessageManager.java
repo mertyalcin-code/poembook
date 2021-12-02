@@ -46,12 +46,12 @@ public class PrivateMessageManager implements PrivateMessageService {
         privateMessage.setFrom(fromUser);
         privateMessage.setTo(toUser);
         privateMessage.setMessage(message);
-        privateMessage.setPmTime(LocalDateTime.now().atZone(ZoneId.of("UTC+3")));
-        List<PrivateMessage> messages = privateMessageRepo.findAllByFromAndTo(fromUser, toUser);
+        privateMessage.setPmTime(LocalDateTime.now().atZone(ZoneId.of("UTC")));
+       /* List<PrivateMessage> messages = privateMessageRepo.findAllByFromAndTo(fromUser, toUser);
         messages.removeIf(pm -> pm.getPmTime().isBefore(ChronoZonedDateTime.from(LocalDateTime.now().minusHours(24))));
         if (messages.size() < 1) {
             emailService.sendYouHaveMessageEmail(toUser.getUsername(), toUser.getEmail(), fromUser.getFirstName() + " " + fromUser.getLastName());
-        }
+        }*/
 
         privateMessageRepo.save(privateMessage);
         noticeService.create(

@@ -49,8 +49,8 @@ public class PoemCommentManager implements PoemCommentService {
         poemComment.setPoemCommentText(poemCommentText);
         poemComment.setUser(userService.findUserByUsername(username).getData());
         poemComment.setPoem(poemService.findById(poemId).getData());
-        poemComment.setCommentTime(LocalDateTime.now().atZone(ZoneId.of("UTC+3")));
-        poemComment.setLastCommentUpdateTime(LocalDateTime.now().atZone(ZoneId.of("UTC+3")));
+        poemComment.setCommentTime(LocalDateTime.now().atZone(ZoneId.of("UTC")));
+        poemComment.setLastCommentUpdateTime(LocalDateTime.now().atZone(ZoneId.of("UTC")));
         poemCommentRepo.save(poemComment);
         poemService.updatePoemCommentCount(poemComment.getPoem());
         if (userService.findUserByUsername(username).getData() != poemService.findById(poemId).getData().getUser()) {
@@ -68,7 +68,7 @@ public class PoemCommentManager implements PoemCommentService {
             return new ErrorResult(validation.validateUpdateComment(poemCommentId, poemCommentText).getMessage());
         }
         poemComment.setPoemCommentText(poemCommentText);
-        poemComment.setLastCommentUpdateTime(LocalDateTime.now().atZone(ZoneId.of("UTC+3")));
+        poemComment.setLastCommentUpdateTime(LocalDateTime.now().atZone(ZoneId.of("UTC")));
         poemCommentRepo.save(poemComment);
         return new SuccessResult(COMMENT_UPDATED);
     }

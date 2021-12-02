@@ -49,7 +49,7 @@ public class CategoryManager implements CategoryService {
         Category category = new Category();
         category.setCreatorUsername(userRepo.findUserByUsername(currentUsername).getUsername());
         category.setCategoryTitle(categoryTitle);
-        category.setCreationDate(LocalDateTime.now().atZone(ZoneId.of("UTC+3")));
+        category.setCreationDate(LocalDateTime.now().atZone(ZoneId.of("UTC")));
         category.setActive(isActive);
         categoryRepo.save(category);
         logger.log(LOG_CATEGORY_CREATE.toString(),
@@ -68,7 +68,7 @@ public class CategoryManager implements CategoryService {
         String oldTitle = category.getCategoryTitle();
         category.setUpdateUsername(userRepo.findUserByUsername(username).getUsername());
         category.setCategoryTitle(newCategoryTitle);
-        category.setLastUpdateDate(LocalDateTime.now().atZone(ZoneId.of("UTC+3")));
+        category.setLastUpdateDate(LocalDateTime.now().atZone(ZoneId.of("UTC")));
         category.setActive(isActive);
         categoryRepo.save(category);
         logger.log(LOG_CATEGORY_UPDATE.toString(),

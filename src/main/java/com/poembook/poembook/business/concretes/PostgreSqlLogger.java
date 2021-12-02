@@ -26,7 +26,7 @@ public class PostgreSqlLogger implements LoggerService {
         Log log = new Log();
         log.setLogType(logType);
         log.setMessage(message);
-        log.setLogTime(LocalDateTime.now().atZone(ZoneId.of("UTC+3")));
+        log.setLogTime(LocalDateTime.now().atZone(ZoneId.of("UTC")));
         postgreSqlLoggerRepo.save(log);
     }
 

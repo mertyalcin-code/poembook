@@ -35,7 +35,7 @@ public class NoticeManager implements NoticeService {
         Notice newNotice = new Notice();
         newNotice.setNoticeText(notice);
         newNotice.setUser(user);
-        newNotice.setNoticeTime(LocalDateTime.now().atZone(ZoneId.of("UTC+3"))
+        newNotice.setNoticeTime(LocalDateTime.now().atZone(ZoneId.of("UTC"))
         );
         noticeRepo.save(newNotice);
         return new SuccessResult(NOTICE_CREATED);
