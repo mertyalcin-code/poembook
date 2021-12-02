@@ -28,7 +28,8 @@ public class PoembookApplication {
         corsConfiguration.setAllowedOrigins(Arrays.asList(
                 "http://localhost:4200",
                 "http://mert-yalcin.com.tr",
-                "https://poembook-app.herokuapp.com"
+                "https://poembook-app.herokuapp.com",
+                "http://poembook-app.herokuapp.com"
 
 
         ));
