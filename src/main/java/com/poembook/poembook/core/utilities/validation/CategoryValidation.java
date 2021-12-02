@@ -15,7 +15,7 @@ import static com.poembook.poembook.constant.CategoryConstant.CATEGORY_TITLE_NOT
 @Service
 @AllArgsConstructor
 public class CategoryValidation {
-    private static final String CATEGORY_TITLE_PATTERN = "^\\w{2,50}$";
+    private static final String CATEGORY_TITLE_PATTERN = "^...{1,30}$";
     private final CategoryRepo categoryRepo;
 
     //validations

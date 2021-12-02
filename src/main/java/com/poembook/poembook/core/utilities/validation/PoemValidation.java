@@ -19,8 +19,9 @@ import static com.poembook.poembook.constant.UserConstant.USER_NOT_FOUND;
 @Service
 @AllArgsConstructor
 public class PoemValidation {
-    private static final String POEM_CONTENT_PATTERN = "^\\w{2,5000}$";
-    private static final String POEM_TITLE_PATTERN = "^\\w{2,50}$";
+    private static final String POEM_CONTENT_PATTERN = "^...{2,5000}$";
+    private static final String POEM_TITLE_PATTERN = "^...{2,50}$";
+
     private final PoemRepo poemRepo;
     private final CategoryRepo categoryRepo;
 
@@ -93,7 +94,7 @@ public class PoemValidation {
     }
 
     public boolean isPoemContentNotValid(String poemContent) {
-        poemContent = poemContent.replace(" ", "");
+        poemContent = poemContent.replace(" ", ""); //çalışmıyor
         Pattern pattern = Pattern.compile(POEM_CONTENT_PATTERN, Pattern.CASE_INSENSITIVE);
         return !pattern.matcher(poemContent).find();
 

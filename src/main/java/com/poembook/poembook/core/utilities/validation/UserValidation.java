@@ -17,10 +17,10 @@ import static com.poembook.poembook.constant.UserConstant.*;
 @AllArgsConstructor
 public class UserValidation {
     private static final String EMAIL_PATTERN = "^[A-Z0-9._%+-]+@[A-Z0-9.-]+.(com|org|net|edu|gov|mil|biz|info|mobi)(.[A-Z]{2})?$";
-    private static final String USERNAME_PATTERN = "^\\w{3,20}$";
-    private static final String FIRST_NAME_PATTERN = "^\\w{3,60}$";
-    private static final String LAST_NAME_PATTERN = "^\\w{3,60}$";
-    private static final String PASSWORD_PATTERN = "^\\w{6,20}$";
+    private static final String USERNAME_PATTERN = "^...{6,20}$";
+    private static final String FIRST_NAME_PATTERN = "^...{3,60}$";
+    private static final String LAST_NAME_PATTERN = "^...{3,60}$";
+    private static final String PASSWORD_PATTERN = "^...{6,20}$";
     private static final String FACEBOOK_URL_PATTERN = "((http|https)://)?(www[.])?facebook.com/.+";
     private static final String TWITTER_URL_PATTERN = "((http|https)://)?(www[.])?twitter.com/.+";
     private static final String INSTAGRAM_URL_PATTERN = "((http|https)://)?(www[.])?instagram.com/.+";
