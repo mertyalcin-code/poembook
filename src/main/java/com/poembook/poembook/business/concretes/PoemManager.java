@@ -18,8 +18,10 @@ import lombok.AllArgsConstructor;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
+import java.time.Duration;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
+import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
@@ -317,7 +319,8 @@ public class PoemManager implements PoemService {
             poemBox.setPoemContent(poem.getPoemContent());
             poemBox.setActive(poem.isActive());
             poemBox.setCreationDate(poem.getCreationDate());
-            poemBox.setCreationDateInMinute(((LocalDateTime.now().atZone(ZoneId.of("UTC")).getMinute() - poem.getCreationDate().getMinute())));
+
+            poemBox.setCreationDateInMinute(Duration.between(poem.getCreationDate(),LocalDateTime.now().atZone(ZoneId.of("UTC"))).toMinutes());
             poemBox.setLastUpdateDate(poem.getLastUpdateDate());
             poemBox.setCommentCount(poem.getCommentCount());
             poemBox.setHowManyLikes(poem.getHowManyLikes());
@@ -334,7 +337,7 @@ public class PoemManager implements PoemService {
                     PoemCommentBox poemCommentBox = new PoemCommentBox();
                     poemCommentBox.setPoemCommentId(poemComment.getPoemCommentId());
                     poemCommentBox.setPoemCommentText(poemComment.getPoemCommentText());
-                    poemCommentBox.setCommentTimeInMinute(((LocalDateTime.now().atZone(ZoneId.of("UTC"))).getMinute() - poemComment.getLastCommentUpdateTime().getMinute()));
+                    poemCommentBox.setCommentTimeInMinute(Duration.between(poemComment.getCommentTime(),LocalDateTime.now().atZone(ZoneId.of("UTC"))).toMinutes());
                     poemCommentBox.setLastCommentUpdateTime(poemComment.getLastCommentUpdateTime());
                     poemCommentBox.setUsername(poemComment.getUser().getUsername());
                     poemCommentBox.setUserAvatar(poemComment.getUser().getAvatar().getImageUrl());
