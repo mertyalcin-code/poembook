@@ -10,6 +10,7 @@ import com.poembook.poembook.entities.poem.Poem;
 import com.poembook.poembook.entities.poem.PoemComment;
 import com.poembook.poembook.repository.PoemCommentRepo;
 import lombok.AllArgsConstructor;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
@@ -40,7 +41,8 @@ public class PoemCommentManager implements PoemCommentService {
     }
 
     @Override
-    public Result create(String poemCommentText, Long poemId, String username) {
+    public Result create(String poemCommentText, Long poemId) {
+        String username = SecurityContextHolder.getContext().getAuthentication().getName();
 
         if (!validation.validateCreateComment(poemCommentText, poemId, username).isSuccess()) {
             return new ErrorResult(validation.validateCreateComment(poemCommentText, poemId, username).getMessage());

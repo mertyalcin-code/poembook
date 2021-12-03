@@ -10,7 +10,7 @@ public interface PoemCommentService {
 
     Result read(Long poemCommentId);
 
-    Result create(String poemCommentText, Long poemId, String username);
+    Result create(String poemCommentText, Long poemId);
 
     Result update(Long poemCommentId, String poemCommentText);
 

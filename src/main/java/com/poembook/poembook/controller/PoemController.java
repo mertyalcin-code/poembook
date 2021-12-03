@@ -1,4 +1,4 @@
-package com.poembook.poembook.api.controller;
+package com.poembook.poembook.controller;
 
 import com.poembook.poembook.business.abstracts.PoemService;
 import com.poembook.poembook.core.utilities.result.DataResult;
@@ -18,9 +18,9 @@ public class PoemController {
     private final PoemService poemService;
 
 
-    @GetMapping("/list/random/{currentUsername}")
-    public DataResult<PoemBox> getRandomPoem(@PathVariable String currentUsername) {
-        return poemService.getRandomPoem(currentUsername);
+    @GetMapping("/list/random")
+    public DataResult<PoemBox> getRandomPoem() {
+        return poemService.getRandomPoem();
     }
 
     @GetMapping("/list/search/{search}")
@@ -34,26 +34,24 @@ public class PoemController {
     }
 
     @PostMapping("/list/followings")
-    public DataResult<List<PoemBox>> listByFollowings(@RequestParam String username,
-                                                      @RequestParam int indexStart,
+    public DataResult<List<PoemBox>> listByFollowings(@RequestParam int indexStart,
                                                       @RequestParam int indexEnd) {
-        return poemService.listFollowingsPoemsByDate(username, indexStart, indexEnd);
+        return poemService.listFollowingsPoemsByDate(indexStart, indexEnd);
     }
 
     @PostMapping("/list/profile/username")
-    public DataResult<List<PoemBox>> listByUsernameWithPoembox(@RequestParam String currentUsername,
-                                                               @RequestParam String username,
+    public DataResult<List<PoemBox>> listByUsernameWithPoembox( @RequestParam String username,
                                                                @RequestParam int indexStart,
                                                                @RequestParam int indexEnd) {
         return poemService.listByUsernameWithPoembox(username, indexStart, indexEnd);
     }
 
     @PostMapping("/list/categories")
-    public DataResult<List<PoemBox>> listCategoriesPoemsByDate(@RequestParam String currentUsername,
+    public DataResult<List<PoemBox>> listCategoriesPoemsByDate(
                                                                @RequestParam String categoryTitle,
                                                                @RequestParam int indexStart,
                                                                @RequestParam int indexEnd
-    ) {
+    ) {System.out.println(categoryTitle);
         return poemService.listCategoriesPoemsByDate(categoryTitle, indexStart, indexEnd);
     }
 
@@ -70,26 +68,24 @@ public class PoemController {
     @PostMapping("/create")
     public Result create(@RequestParam String poemTitle,
                          @RequestParam String poemContent,
-                         @RequestParam String currentUsername,
                          @RequestParam String categoryTitle
     ) {
-        return poemService.create(poemTitle, poemContent, currentUsername, categoryTitle);
+        return poemService.create(poemTitle, poemContent, categoryTitle);
     }
 
     @PostMapping("/update")
     public Result update(@RequestParam Long poemId,
                          @RequestParam String poemTitle,
                          @RequestParam String poemContent,
-                         @RequestParam String currentUsername,
                          @RequestParam String categoryTitle
 
     ) {
-        return poemService.update(poemId, poemTitle, poemContent, currentUsername, categoryTitle);
+        return poemService.update(poemId, poemTitle, poemContent, categoryTitle);
     }
 
 
-    @PostMapping("/delete")
-    public Result delete(@RequestParam Long poemId, @RequestParam String currentUsername) {
+    @DeleteMapping("/delete/{poemId}")
+    public Result delete(@PathVariable Long poemId) {
         return poemService.delete(poemId);
     }
 

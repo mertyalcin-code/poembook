@@ -19,8 +19,8 @@ import static com.poembook.poembook.constant.UserConstant.USER_NOT_FOUND;
 @Service
 @AllArgsConstructor
 public class PoemValidation {
-    private static final String POEM_CONTENT_PATTERN = "^...{2,5000}$";
-    private static final String POEM_TITLE_PATTERN = "^...{2,50}$";
+    private static final String POEM_CONTENT_PATTERN = "^.{2,5000}$";
+    private static final String POEM_TITLE_PATTERN = "^.{2,50}$";
 
     private final PoemRepo poemRepo;
     private final CategoryRepo categoryRepo;

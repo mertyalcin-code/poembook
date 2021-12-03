@@ -1,4 +1,4 @@
-package com.poembook.poembook.api.controller;
+package com.poembook.poembook.controller;
 
 import com.poembook.poembook.business.abstracts.CategoryService;
 import com.poembook.poembook.business.abstracts.PoemService;
@@ -20,27 +20,23 @@ import java.util.List;
 public class EditorController {
     private CategoryService categoryService;
     private PoemService poemService;
-    private PoemRepo poemRepo;
 
     @PostMapping("/category/add")
     public Result createCategory(@RequestParam String categoryTitle,
-                                 @RequestParam String currentUsername,
                                  @RequestParam boolean isActive) {
-        return categoryService.create(categoryTitle, currentUsername, isActive);
+        return categoryService.create(categoryTitle, isActive);
     }
 
     @PostMapping("/category/update")
     public Result updateCategory(@RequestParam int categoryId,
                                  @RequestParam String newCategoryTitle,
-                                 @RequestParam String currentUsername,
                                  @RequestParam boolean isActive) {
 
-        return categoryService.update(categoryId, newCategoryTitle, currentUsername, isActive);
+        return categoryService.update(categoryId, newCategoryTitle, isActive);
     }
 
     @PostMapping("/category/delete")
-    public Result deleteCategory(@RequestParam String categoryTitle,
-                                 @RequestParam String currentUsername
+    public Result deleteCategory(@RequestParam String categoryTitle
     ) {
         return categoryService.delete(categoryTitle);
     }
@@ -54,12 +50,11 @@ public class EditorController {
     public Result adminUpdate(@RequestParam Long poemId,
                               @RequestParam String poemTitle,
                               @RequestParam String poemContent,
-                              @RequestParam String currentUsername,
                               @RequestParam String categoryTitle,
                               @RequestParam boolean isActive
 
     ) {
-        return poemService.adminUpdate(poemId, poemTitle, poemContent, currentUsername, categoryTitle, isActive);
+        return poemService.adminUpdate(poemId, poemTitle, poemContent, categoryTitle, isActive);
     }
 
 }

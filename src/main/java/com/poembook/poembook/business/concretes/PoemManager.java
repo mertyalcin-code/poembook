@@ -50,7 +50,8 @@ public class PoemManager implements PoemService {
 
     //user Methods
     @Override
-    public Result create(String poemTitle, String poemContent, String username, String categoryTitle) {
+    public Result create(String poemTitle, String poemContent, String categoryTitle) {
+        String username = SecurityContextHolder.getContext().getAuthentication().getName();
         User user = userService.findUserByUsername(username).getData();
         Category category = categoryRepo.findByCategoryTitle(categoryTitle);
         if (!validation.validatePoemCreate(user, poemTitle, poemContent, username, categoryTitle).isSuccess()) {
@@ -78,7 +79,8 @@ public class PoemManager implements PoemService {
 
 
     @Override
-    public Result update(Long poemId, String poemTitle, String poemContent, String currentUsername, String categoryTitle) {
+    public Result update(Long poemId, String poemTitle, String poemContent, String categoryTitle) {
+        String currentUsername = SecurityContextHolder.getContext().getAuthentication().getName();
         Poem poem = poemRepo.findByPoemId(poemId);
         Category category = categoryRepo.findByCategoryTitle(categoryTitle);
         if (!validation.validatePoemUpdate(poem, poemTitle, poemContent, currentUsername, categoryTitle).isSuccess()) {
@@ -113,7 +115,8 @@ public class PoemManager implements PoemService {
 
 
     @Override
-    public DataResult<List<PoemBox>> listFollowingsPoemsByDate(String username, int indexStart, int indexEnd) {
+    public DataResult<List<PoemBox>> listFollowingsPoemsByDate(int indexStart, int indexEnd) {
+        String username = SecurityContextHolder.getContext().getAuthentication().getName();
         List<String> followings = followerService.getUsersFallowing(username).getData();
         if (followings == null) {
             return new ErrorDataResult<>(NO_FOLLOWING_FOUND);
@@ -206,7 +209,7 @@ public class PoemManager implements PoemService {
     }
 
     @Override
-    public DataResult<List<PoemBox>> listByUsernameWithPoembox(String username, int indexStart, int indexEnd) {
+    public DataResult<List<PoemBox>> listByUsernameWithPoembox(String username,int indexStart, int indexEnd) {
         User user = userService.findUserByUsername(username).getData();
         if (user == null) {
             return new ErrorDataResult<>(USER_NOT_FOUND);
@@ -229,7 +232,8 @@ public class PoemManager implements PoemService {
     }
 
     @Override
-    public DataResult<PoemBox> getRandomPoem(String currentUsername) {
+    public DataResult<PoemBox> getRandomPoem() {
+       String currentUsername= SecurityContextHolder.getContext().getAuthentication().getName();
         List<Poem> poems = findAllPoem().getData();
         poems.removeIf(poem -> Objects.equals(poem.getUser().getUsername(), currentUsername));
         List<PoemBox> bigList = new ArrayList<>();
@@ -283,7 +287,8 @@ public class PoemManager implements PoemService {
     }
 
     @Override
-    public Result adminUpdate(Long poemId, String poemTitle, String poemContent, String currentUsername, String categoryTitle, boolean isActive) {
+    public Result adminUpdate(Long poemId, String poemTitle, String poemContent, String categoryTitle, boolean isActive) {
+        String currentUsername = SecurityContextHolder.getContext().getAuthentication().getName();
         Poem poem = poemRepo.findByPoemId(poemId);
         Category category = categoryService.findCategoryByCategoryTitle(categoryTitle).getData();
         if (!validation.validateAdminUpdate(poem, poemTitle, poemContent, currentUsername, categoryTitle).isSuccess()) {

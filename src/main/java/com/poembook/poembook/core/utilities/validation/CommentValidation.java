@@ -19,7 +19,7 @@ import static com.poembook.poembook.constant.UserConstant.USER_NOT_FOUND;
 @AllArgsConstructor
 @Service
 public class CommentValidation {
-    private static final String POEM_COMMENT_PATTERN = "^...{1,200}$";
+    private static final String POEM_COMMENT_PATTERN = "^.{1,200}$";
     private final UserRepo userRepo;
     private final PoemRepo poemRepo;
     private final PoemCommentRepo poemCommentRepo;

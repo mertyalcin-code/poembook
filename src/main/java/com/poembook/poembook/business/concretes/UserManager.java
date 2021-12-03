@@ -30,6 +30,7 @@ import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
+import java.util.Locale;
 
 import static com.poembook.poembook.constant.EmailConstant.EMAIL_SEND_SUCCESS;
 import static com.poembook.poembook.constant.LoggerConstant.FORGET_PASSWORD_LOG;
@@ -115,7 +116,7 @@ public class UserManager implements UserService {
 
     // Admin Methods
     @Override
-    public Result addUser(String currentUsername,
+    public Result addUser(
                           String firstName,
                           String lastName,
                           String username,
@@ -123,6 +124,7 @@ public class UserManager implements UserService {
                           String role,
                           boolean isNonLocked,
                           boolean isActive) throws MessagingException {
+        String currentUsername = SecurityContextHolder.getContext().getAuthentication().getName();
         if (!validation.validateUserAdd(currentUsername, firstName, lastName, username, email, role).isSuccess()) {
             return new ErrorResult(validation.validateUserAdd(currentUsername, firstName, lastName, username, email, role).getMessage());
         }
@@ -147,7 +149,7 @@ public class UserManager implements UserService {
     }
 
     @Override
-    public Result updateUser(String adminUsername,
+    public Result updateUser(
                              String userUsername,
                              String newFirstName,
                              String newLastName,
@@ -156,6 +158,7 @@ public class UserManager implements UserService {
                              String role,
                              boolean isNonLocked,
                              boolean isActive) {
+        String adminUsername = SecurityContextHolder.getContext().getAuthentication().getName();
         if (!validation.validateUpdateUser(adminUsername, userUsername, newFirstName, newLastName, newUsername, newEmail, role).isSuccess()) {
             return new ErrorResult(validation.validateUpdateUser(adminUsername, userUsername, newFirstName, newLastName, newUsername, newEmail, role).getMessage());
         }
@@ -252,21 +255,24 @@ public class UserManager implements UserService {
     }
 
     @Override
-    public Result makeSuperAdmin(String username) {
+    public Result makeSuperAdmin(String username) throws MessagingException {
         User user = findUserByUsername(username).getData();
         if (user == null) {
             return new ErrorResult(USER_NOT_FOUND);
         }
         user.setRole(Role.ROLE_SUPER_ADMIN.name());
         user.setAuthorities(Role.ROLE_SUPER_ADMIN.getAuthorities());
+        userRepo.save(user);
+        emailService.sendYourRoleChangedEmail(user.getFirstName(),user.getEmail(),"Süper Admin");
         return new SuccessResult(MAKE_SUPER_ADMIN_SUCCESS + username);
     }
 
     //User Methods
     @Override
-    public Result selfUpdate(String currentUsername, String newFirstname, String newLastname, String facebookAccount, String twitterAccount, String instagramAccount, String aboutMe) {
+    public Result selfUpdate( String newFirstname, String newLastname, String facebookAccount, String twitterAccount, String instagramAccount, String aboutMe) {
+        String currentUsername = SecurityContextHolder.getContext().getAuthentication().getName();
         if (!validation.validateSelfUpdate(currentUsername, newFirstname, newLastname, facebookAccount, twitterAccount, instagramAccount, aboutMe).isSuccess()) {
-            return new ErrorResult(validation.validateUpdateUser(currentUsername, newFirstname, newLastname, facebookAccount, twitterAccount, instagramAccount, aboutMe).getMessage());
+            return new ErrorResult(validation.validateSelfUpdate(currentUsername, newFirstname, newLastname, facebookAccount, twitterAccount, instagramAccount, aboutMe).getMessage());
         }
         User currentUser = findUserByUsername(currentUsername).getData();
         currentUser.setFirstName(newFirstname);
@@ -281,7 +287,8 @@ public class UserManager implements UserService {
     }
 
     @Override
-    public Result changePassword(String username, String newPassword) {
+    public Result changePassword(String newPassword) {
+        String username = SecurityContextHolder.getContext().getAuthentication().getName();
         User user = findUserByUsername(username).getData();
         if (!validation.validateChangePassword(user, newPassword).isSuccess()) {
             return new ErrorResult(validation.validateChangePassword(user, newPassword).getMessage());
@@ -295,7 +302,8 @@ public class UserManager implements UserService {
     }
 
     @Override
-    public Result changeEmail(String currentUsername, String newEmail) {
+    public Result changeEmail( String newEmail) {
+        String currentUsername = SecurityContextHolder.getContext().getAuthentication().getName();
         User user = findUserByUsername(currentUsername).getData();
         if (!validation.validateChangeEmail(user, currentUsername, newEmail).isSuccess()) {
             return new ErrorResult(validation.validateChangeEmail(user, currentUsername, newEmail).getMessage());
@@ -308,7 +316,8 @@ public class UserManager implements UserService {
     }
 
     @Override
-    public Result changeUsername(String currentUsername, String newUsername) {
+    public Result changeUsername(String newUsername) {
+        String currentUsername = SecurityContextHolder.getContext().getAuthentication().getName();
         User user = findUserByUsername(currentUsername).getData();
         if (!validation.validateChangeUsername(user, currentUsername, newUsername).isSuccess()) {
             return new ErrorResult(validation.validateChangeUsername(user, currentUsername, newUsername).getMessage());

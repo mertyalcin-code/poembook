@@ -6,10 +6,7 @@ import com.poembook.poembook.core.utilities.result.Result;
 import com.poembook.poembook.entities.notification.Notice;
 import lombok.AllArgsConstructor;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
@@ -20,9 +17,8 @@ import java.util.List;
 public class NoticeController {
     private NoticeService noticeService;
 
-    @PostMapping("/delete")
-    public Result delete(@RequestParam String currentUsername,
-                         @RequestParam Long noticeId
+    @DeleteMapping("/delete/{noticeId}")
+    public Result delete(@PathVariable Long noticeId
 
     ) {
 
@@ -30,16 +26,14 @@ public class NoticeController {
     }
 
     @PostMapping("/delete-all")
-    public Result delete(@RequestParam String currentUsername,
-                         @RequestParam String username
+    public Result delete(@RequestParam String username
 
     ) {
         return noticeService.deleteAll(username);
     }
 
     @PostMapping("/list-all")
-    public DataResult<List<Notice>> listAll(@RequestParam String currentUsername,
-                                            @RequestParam String username
+    public DataResult<List<Notice>> listAll(@RequestParam String username
     ) {
         return noticeService.listAll(username);
     }

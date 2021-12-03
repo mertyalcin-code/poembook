@@ -17,10 +17,10 @@ import static com.poembook.poembook.constant.UserConstant.*;
 @AllArgsConstructor
 public class UserValidation {
     private static final String EMAIL_PATTERN = "^[A-Z0-9._%+-]+@[A-Z0-9.-]+.(com|org|net|edu|gov|mil|biz|info|mobi)(.[A-Z]{2})?$";
-    private static final String USERNAME_PATTERN = "^...{6,20}$";
-    private static final String FIRST_NAME_PATTERN = "^...{3,60}$";
-    private static final String LAST_NAME_PATTERN = "^...{3,60}$";
-    private static final String PASSWORD_PATTERN = "^...{6,20}$";
+    private static final String USERNAME_PATTERN = "^.{6,20}$";
+    private static final String FIRST_NAME_PATTERN = "^.{3,60}$";
+    private static final String LAST_NAME_PATTERN = "^.{3,60}$";
+    private static final String PASSWORD_PATTERN = "^.{6,20}$";
     private static final String FACEBOOK_URL_PATTERN = "((http|https)://)?(www[.])?facebook.com/.+";
     private static final String TWITTER_URL_PATTERN = "((http|https)://)?(www[.])?twitter.com/.+";
     private static final String INSTAGRAM_URL_PATTERN = "((http|https)://)?(www[.])?instagram.com/.+";
@@ -110,13 +110,13 @@ public class UserValidation {
         if (isLastNameNotValid(newLastname)) {
             return new ErrorResult(LAST_NAME_INVALID);
         }
-        if (isFacebookUrlNotValid(facebookAccount)) {
+        if (isFacebookUrlNotValid(facebookAccount)&&StringUtils.isNotBlank(facebookAccount)) {
             return new ErrorResult(FACEBOOK_URL_NOT_VALID);
         }
-        if (isInstagramUrlNotValid(instagramAccount)) {
+        if (isInstagramUrlNotValid(instagramAccount)&&StringUtils.isNotBlank(instagramAccount)) {
             return new ErrorResult(INSTAGRAM_URL_NOT_VALID);
         }
-        if (isTwitterUrlNotValid(twitterAccount)) {
+        if (isTwitterUrlNotValid(twitterAccount)&&StringUtils.isNotBlank(twitterAccount)) {
             return new ErrorResult(TWITTER_URL_NOT_VALID);
         }
         return new SuccessResult();

@@ -1,4 +1,4 @@
-package com.poembook.poembook.api.controller;
+package com.poembook.poembook.controller;
 
 import com.poembook.poembook.business.abstracts.PoemLikeService;
 import com.poembook.poembook.business.abstracts.PoemService;
@@ -22,20 +22,19 @@ public class LikedPoemController {
     PoemService poemService;
 
     @PostMapping("/like")
-    public Result like(@RequestParam Long poemId,
-                       @RequestParam String currentUsername
+    public Result like(@RequestParam Long poemId
     ) {
-        return poemLikeService.like(poemId, currentUsername);
+        return poemLikeService.like(poemId);
     }
 
     @PostMapping("/unlike")
-    public Result unlike(@RequestParam String currentUsername, @RequestParam Long poemId) {
-        return poemLikeService.unlike(currentUsername, poemId);
+    public Result unlike(@RequestParam Long poemId) {
+        return poemLikeService.unlike( poemId);
     }
 
     @PostMapping("/isliked")
-    public Result isLiked(@RequestParam String currentUsername, @RequestParam Long poemId) {
-        return poemLikeService.isLiked(currentUsername, poemId);
+    public Result isLiked(@RequestParam Long poemId) {
+        return poemLikeService.isLiked( poemId);
     }
 
 }

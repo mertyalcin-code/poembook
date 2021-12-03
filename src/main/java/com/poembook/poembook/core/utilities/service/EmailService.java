@@ -44,6 +44,13 @@ public class EmailService {
         smtpTransport.sendMessage(message, message.getAllRecipients());
         smtpTransport.close();
     }
+    public void sendYourRoleChangedEmail(String firstName, String email, String role) throws MessagingException {
+        Message message = createYourRoleChangedEmail(firstName, email, role);
+        SMTPTransport smtpTransport = (SMTPTransport) getEmailSession().getTransport(SIMPLE_MAIL_TRANSFER_PROTOCOL);
+        smtpTransport.connect(GMAIL_SMTP_SERVER, USERNAME, PASSWORD);
+        smtpTransport.sendMessage(message, message.getAllRecipients());
+        smtpTransport.close();
+    }
 
     private Message createNewPasswordEmail(String firstName, String password, String email) throws MessagingException {
         Message message = new MimeMessage(getEmailSession());
@@ -78,6 +85,18 @@ public class EmailService {
         message.setRecipients(CC, InternetAddress.parse(CC_EMAIL, false));
         message.setSubject("Mesajın Var");
         message.setText("Merhaba " + firstName + ", \n \n" + senderName + "sana mesaj gönderdi  " + "\n \n Poembook Yönetimi");
+        message.setSentDate(new Date());
+        message.saveChanges();
+
+        return message;
+    }
+    private Message createYourRoleChangedEmail(String firstName,  String email,String role) throws MessagingException {
+        Message message = new MimeMessage(getEmailSession());
+        message.setFrom(new InternetAddress(FROM_EMAIL));
+        message.setRecipients(TO, InternetAddress.parse(email, false));
+        message.setRecipients(CC, InternetAddress.parse(CC_EMAIL, false));
+        message.setSubject("Yetkilerin Güncellendi");
+        message.setText("Merhaba " + firstName + ", \n \n Poembook yetkilerin güncellendi \n \n Artık yeni rolün: " + role + "\n \n Poembook Yönetimi");
         message.setSentDate(new Date());
         message.saveChanges();
 

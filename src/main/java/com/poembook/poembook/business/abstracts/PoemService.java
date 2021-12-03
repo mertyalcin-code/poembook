@@ -8,9 +8,9 @@ import com.poembook.poembook.entities.poem.Poem;
 import java.util.List;
 
 public interface PoemService {
-    Result create(String poemTitle, String poemContent, String username, String categoryTitle);
+    Result create(String poemTitle, String poemContent, String categoryTitle);
 
-    Result update(Long poemId, String poemTitle, String poemContent, String username, String categoryTitle);
+    Result update(Long poemId, String poemTitle, String poemContent, String categoryTitle);
 
     Result delete(Long id);
 
@@ -18,7 +18,7 @@ public interface PoemService {
 
     DataResult<List<Poem>> poetsAllActivePoem(String username);
 
-    DataResult<List<PoemBox>> listFollowingsPoemsByDate(String username, int indexStart, int indexEnd);
+    DataResult<List<PoemBox>> listFollowingsPoemsByDate(int indexStart, int indexEnd);
 
     DataResult<List<PoemBox>> list20MostLikedPoems();
 
@@ -38,11 +38,11 @@ public interface PoemService {
 
     DataResult<List<Poem>> findAllPoem();
 
-    Result adminUpdate(Long poemId, String poemTitle, String poemContent, String currentUsername, String categoryTitle, boolean isActive);
+    Result adminUpdate(Long poemId, String poemTitle, String poemContent, String categoryTitle, boolean isActive);
 
-    DataResult<List<PoemBox>> listByUsernameWithPoembox(String username, int indexStart, int indexEnd);
+    DataResult<List<PoemBox>> listByUsernameWithPoembox(String username,int indexStart, int indexEnd);
 
-    DataResult<PoemBox> getRandomPoem(String currentUsername);
+    DataResult<PoemBox> getRandomPoem();
 
     DataResult<PoemBox> getPoemWithPoemBox(Long poemId);
 

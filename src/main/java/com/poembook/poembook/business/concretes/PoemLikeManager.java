@@ -11,6 +11,7 @@ import com.poembook.poembook.entities.poem.PoemLike;
 import com.poembook.poembook.entities.users.User;
 import com.poembook.poembook.repository.LikedPoemsRepo;
 import lombok.AllArgsConstructor;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
@@ -27,7 +28,8 @@ public class PoemLikeManager implements PoemLikeService {
     private final UserService userService;
 
     @Override
-    public Result like(Long poemId, String username) {
+    public Result like(Long poemId) {
+        String username = SecurityContextHolder.getContext().getAuthentication().getName();
         User user = userService.findUserByUsername(username).getData();
         Poem poem = poemService.findById(poemId).getData();
         if (likedPoemsRepo.findByUserAndPoem(user, poem) != null) {
@@ -44,7 +46,8 @@ public class PoemLikeManager implements PoemLikeService {
 
 
     @Override
-    public Result unlike(String username, Long poemId) {
+    public Result unlike( Long poemId) {
+        String username = SecurityContextHolder.getContext().getAuthentication().getName();
         User user = userService.findUserByUsername(username).getData();
         Poem poem = poemService.findById(poemId).getData();
         PoemLike poemLike = likedPoemsRepo.findByUserAndPoem(user, poem);
@@ -67,7 +70,7 @@ public class PoemLikeManager implements PoemLikeService {
     }
 
     @Override
-    public Result isLiked(String currentUsername, Long poemId) {
+    public Result isLiked(Long poemId) {
         return null; //gerekirse
     }
 

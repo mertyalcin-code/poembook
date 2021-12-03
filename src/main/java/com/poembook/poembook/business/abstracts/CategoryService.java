@@ -9,9 +9,9 @@ import java.util.List;
 public interface CategoryService {
     DataResult<Category> read(String categoryTitle);
 
-    Result create(String categoryTitle, String username, boolean isActive);
+    Result create(String categoryTitle, boolean isActive);
 
-    Result update(int categoryId, String newCategoryTitle, String username, boolean isActive);
+    Result update(int categoryId, String newCategoryTitle, boolean isActive);
 
     Result delete(String categoryTitle);
 

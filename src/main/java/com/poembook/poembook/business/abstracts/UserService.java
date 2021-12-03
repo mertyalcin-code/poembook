@@ -9,19 +9,19 @@ import javax.mail.MessagingException;
 import java.util.List;
 
 public interface UserService {
-    Result addUser(String currentUsername, String firstName, String lastName, String username, String email, String role, boolean isNonLocked, boolean isActive) throws MessagingException;
+    Result addUser(String firstName, String lastName, String username, String email, String role, boolean isNonLocked, boolean isActive) throws MessagingException;
 
     Result register(String firstName, String lastName, String username, String email) throws MessagingException;
 
-    Result updateUser(String adminUsername, String userUsername, String newFirstName, String newLastName, String newUsername, String newEmail, String role, boolean isNonLocked, boolean isActive);
+    Result updateUser( String userUsername, String newFirstName, String newLastName, String newUsername, String newEmail, String role, boolean isNonLocked, boolean isActive);
 
-    Result selfUpdate(String currentUsername, String newFirstname, String newLastname, String facebookAccount, String twitterAccount, String instagramAccount, String aboutMe);
+    Result selfUpdate(String newFirstname, String newLastname, String facebookAccount, String twitterAccount, String instagramAccount, String aboutMe);
 
     Result deleteUser(String username);
 
     Result resetPassword(String email) throws MessagingException;
 
-    Result changePassword(String username, String newPassword);
+    Result changePassword( String newPassword);
 
     DataResult<ProfileUser> getUserProfile(String username);
 
@@ -45,11 +45,11 @@ public interface UserService {
 
     void updateUserLoginDate(String username);
 
-    Result changeEmail(String currentUsername, String newEmail);
+    Result changeEmail( String newEmail);
 
-    Result changeUsername(String currentUsername, String newUsername);
+    Result changeUsername( String newUsername);
 
-    Result makeSuperAdmin(String username);
+    Result makeSuperAdmin(String username) throws MessagingException;
 
     Result forgetPassword(String email) throws MessagingException;
 

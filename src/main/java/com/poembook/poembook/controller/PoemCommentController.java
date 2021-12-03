@@ -1,4 +1,4 @@
-package com.poembook.poembook.api.controller;
+package com.poembook.poembook.controller;
 
 import com.poembook.poembook.business.abstracts.PoemCommentService;
 import com.poembook.poembook.core.utilities.result.DataResult;
@@ -20,24 +20,21 @@ public class PoemCommentController {
 
     @PostMapping("/add")
     public Result add(@RequestParam String poemCommentText,
-                      @RequestParam Long poemId,
-                      @RequestParam String username
+                      @RequestParam Long poemId
     ) {
 
-        return poemCommentService.create(poemCommentText, poemId, username);
+        return poemCommentService.create(poemCommentText, poemId);
     }
 
     @PostMapping("/update")
-    public Result update(@RequestParam String currentUsername,
-                         @RequestParam String poemCommentText,
+    public Result update(@RequestParam String poemCommentText,
                          @RequestParam Long poemCommentId
     ) {
         return poemCommentService.update(poemCommentId, poemCommentText);
     }
 
-    @PostMapping("/delete")
-    public Result delete(@RequestParam Long poemCommentId,
-                         @RequestParam String username) {
+    @DeleteMapping("/delete{poemCommentId}")
+    public Result delete(@PathVariable Long poemCommentId) {
         return poemCommentService.delete(poemCommentId);
     }
 

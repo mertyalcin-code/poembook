@@ -6,6 +6,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
+import javax.mail.MessagingException;
+
 @RestController
 @RequestMapping("/admin")
 @RequiredArgsConstructor
@@ -14,7 +16,7 @@ public class SuperAdminController {
     private final UserService userService;
 
     @GetMapping("/make-super-admin/{username}")
-    public Result makeSuperAdmin(@PathVariable String username) {
+    public Result makeSuperAdmin(@PathVariable String username) throws MessagingException {
 
         return userService.makeSuperAdmin(username);
     }

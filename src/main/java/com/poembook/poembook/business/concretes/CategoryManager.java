@@ -41,13 +41,13 @@ public class CategoryManager implements CategoryService {
     }
 
     @Override
-    public Result create(String categoryTitle, String currentUsername, boolean isActive) {
+    public Result create(String categoryTitle, boolean isActive) {
         categoryTitle = StringUtils.capitalize(StringUtils.lowerCase(categoryTitle));
         if (!validation.validateCategoryCreate(categoryTitle).isSuccess()) {
             return new ErrorResult(validation.validateCategoryCreate(categoryTitle).getMessage());
         }
         Category category = new Category();
-        category.setCreatorUsername(userRepo.findUserByUsername(currentUsername).getUsername());
+        category.setCreatorUsername(userRepo.findUserByUsername(SecurityContextHolder.getContext().getAuthentication().getName()).getUsername());
         category.setCategoryTitle(categoryTitle);
         category.setCreationDate(LocalDateTime.now().atZone(ZoneId.of("UTC")));
         category.setActive(isActive);
@@ -59,14 +59,14 @@ public class CategoryManager implements CategoryService {
     }
 
     @Override
-    public Result update(int categoryId, String newCategoryTitle, String username, boolean isActive) {
+    public Result update(int categoryId, String newCategoryTitle, boolean isActive) {
         Category category = categoryRepo.findByCategoryId(categoryId);
         newCategoryTitle = StringUtils.capitalize(StringUtils.lowerCase(newCategoryTitle));
         if (validation.isCategoryTitleNotValid(newCategoryTitle)) {
             return new ErrorResult(CATEGORY_TITLE_NOT_VALID);
         }
         String oldTitle = category.getCategoryTitle();
-        category.setUpdateUsername(userRepo.findUserByUsername(username).getUsername());
+        category.setUpdateUsername(userRepo.findUserByUsername(SecurityContextHolder.getContext().getAuthentication().getName()).getUsername());
         category.setCategoryTitle(newCategoryTitle);
         category.setLastUpdateDate(LocalDateTime.now().atZone(ZoneId.of("UTC")));
         category.setActive(isActive);
