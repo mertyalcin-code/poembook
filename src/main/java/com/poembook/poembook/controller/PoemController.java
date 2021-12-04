@@ -51,7 +51,7 @@ public class PoemController {
                                                                @RequestParam String categoryTitle,
                                                                @RequestParam int indexStart,
                                                                @RequestParam int indexEnd
-    ) {System.out.println(categoryTitle);
+    ) {
         return poemService.listCategoriesPoemsByDate(categoryTitle, indexStart, indexEnd);
     }
 

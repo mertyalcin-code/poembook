@@ -1,7 +1,6 @@
-package com.poembook.poembook.api.controller;
+package com.poembook.poembook.controller;
 
 import com.poembook.poembook.business.abstracts.FollowerService;
-import com.poembook.poembook.core.exception.entities.FollowersNotFoundException;
 import com.poembook.poembook.core.utilities.result.DataResult;
 import com.poembook.poembook.core.utilities.result.Result;
 import lombok.AllArgsConstructor;
@@ -36,7 +35,7 @@ public class FollowerController {
     public Result delete(@RequestParam String fromUsername,
                          @RequestParam String toUsername
 
-    ) throws FollowersNotFoundException {
+    ) {
         return followerService.delete(fromUsername, toUsername);
     }
 

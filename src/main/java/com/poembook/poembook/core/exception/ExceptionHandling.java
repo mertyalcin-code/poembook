@@ -13,12 +13,14 @@ import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.DisabledException;
 import org.springframework.security.authentication.LockedException;
+import org.springframework.stereotype.Component;
 import org.springframework.validation.FieldError;
 import org.springframework.web.HttpRequestMethodNotSupportedException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseStatus;
+import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.servlet.NoHandlerFoundException;
 
 import javax.naming.AuthenticationException;
@@ -30,6 +32,7 @@ import java.util.Objects;
 
 import static org.springframework.http.HttpStatus.*;
 
+@RestControllerAdvice
 public class ExceptionHandling implements ErrorController {
     public static final String ERROR_PATH = "/error";
     private static final String ACCOUNT_LOCKED = "Hesabın kilitlendi. Bizimle iletişime geçebilirsin";
@@ -41,15 +44,10 @@ public class ExceptionHandling implements ErrorController {
     private static final String NOT_ENOUGH_PERMISSION = "Bunun için yetkin yok";
     private final Logger LOGGER = LoggerFactory.getLogger(getClass());
 
-
-    //eskiler
-
     @ExceptionHandler(DisabledException.class)
     public ResponseEntity<HttpResponse> accountDisabledException() {
         return createHttpResponse(BAD_REQUEST, ACCOUNT_DISABLED);
     }
-
-
     @ResponseStatus(BAD_REQUEST)
     @ExceptionHandler(MethodArgumentNotValidException.class)
     public Map<String, String> handleValidationExceptions(
@@ -88,70 +86,13 @@ public class ExceptionHandling implements ErrorController {
         return createHttpResponse(UNAUTHORIZED, exception.getMessage());
     }
 
-    @ExceptionHandler(EmailExistException.class)
-    public ResponseEntity<HttpResponse> emailExistException(EmailExistException exception) {
-        return createHttpResponse(BAD_REQUEST, exception.getMessage());
-    }
-
-    @ExceptionHandler(UsernameExistException.class)
-    public ResponseEntity<HttpResponse> usernameExistException(UsernameExistException exception) {
-        return createHttpResponse(BAD_REQUEST, exception.getMessage());
-    }
-
-    @ExceptionHandler(EmailNotFoundException.class)
-    public ResponseEntity<HttpResponse> emailNotFoundException(EmailNotFoundException exception) {
-        return createHttpResponse(BAD_REQUEST, exception.getMessage());
-    }
-
     @ExceptionHandler(UserNotFoundException.class)
     public ResponseEntity<HttpResponse> userNotFoundException(UserNotFoundException exception) {
         return createHttpResponse(BAD_REQUEST, exception.getMessage());
     }
-
-    @ExceptionHandler(PoemCommentNotFoundException.class)
-    public ResponseEntity<HttpResponse> poemCommentNotFoundException(PoemCommentNotFoundException exception) {
-        return createHttpResponse(BAD_REQUEST, exception.getMessage());
-    }
-
-    @ExceptionHandler(PoemCommentNotBeEmptyException.class)
-    public ResponseEntity<HttpResponse> PoemCommentNotBeEmptyException(PoemCommentNotBeEmptyException exception) {
-        return createHttpResponse(BAD_REQUEST, exception.getMessage());
-    }
-
-    @ExceptionHandler(FollowersNotFoundException.class)
-    public ResponseEntity<HttpResponse> FollowersNotFoundException(FollowersNotFoundException exception) {
-        return createHttpResponse(BAD_REQUEST, exception.getMessage());
-    }
-
-    @ExceptionHandler(FollowersAlreadyFollowingException.class)
-    public ResponseEntity<HttpResponse> FollowersAlreadyFollowingException(FollowersAlreadyFollowingException exception) {
-        return createHttpResponse(BAD_REQUEST, exception.getMessage());
-    }
-
-    @ExceptionHandler(PasswordIncorrectException.class)
-    public ResponseEntity<HttpResponse> PasswordIncorrectException(PasswordIncorrectException exception) {
-        return createHttpResponse(BAD_REQUEST, exception.getMessage());
-    }
-
-    @ExceptionHandler(CategoryNotFoundException.class)
-    public ResponseEntity<HttpResponse> CategoryNotFoundException(CategoryNotFoundException exception) {
-        return createHttpResponse(BAD_REQUEST, exception.getMessage());
-    }
-
-    @ExceptionHandler(PoemAlreadyLikedException.class)
-    public ResponseEntity<HttpResponse> PoemAlreadyLikedException(PoemAlreadyLikedException exception) {
-        return createHttpResponse(BAD_REQUEST, exception.getMessage());
-    }
-
-    @ExceptionHandler(PoemAlreadyUnlikedException.class)
-    public ResponseEntity<HttpResponse> PoemAlreadyUnlikedException(PoemAlreadyUnlikedException exception) {
-        return createHttpResponse(BAD_REQUEST, exception.getMessage());
-    }
-
-
     @ExceptionHandler(NoHandlerFoundException.class)
     public ResponseEntity<HttpResponse> noHandlerFoundException(NoHandlerFoundException e) {
-        return createHttpResponse(BAD_REQUEST, "There is no mapping for this URL");
+        return createHttpResponse(BAD_REQUEST, "Böyle bir URL yok");
     }
 
 
@@ -167,11 +108,6 @@ public class ExceptionHandling implements ErrorController {
         return createHttpResponse(INTERNAL_SERVER_ERROR, INTERNAL_SERVER_ERROR_MSG);
     }
 
-    @ExceptionHandler(NotAnImageFileException.class)
-    public ResponseEntity<HttpResponse> notAnImageFileException(NotAnImageFileException exception) {
-        LOGGER.error(exception.getMessage());
-        return createHttpResponse(BAD_REQUEST, exception.getMessage());
-    }
 
     @ExceptionHandler(NoResultException.class)
     public ResponseEntity<HttpResponse> notFoundException(NoResultException exception) {

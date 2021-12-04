@@ -30,7 +30,6 @@ import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
-import java.util.Locale;
 
 import static com.poembook.poembook.constant.EmailConstant.EMAIL_SEND_SUCCESS;
 import static com.poembook.poembook.constant.LoggerConstant.FORGET_PASSWORD_LOG;
@@ -79,7 +78,7 @@ public class UserManager implements UserService {
         user.setRole(Role.ROLE_POET.name());
         user.setAuthorities(Role.ROLE_POET.getAuthorities());
         user.setAvatar(new Avatar(DEFAULT_AVATAR_URL, LocalDateTime.now().atZone(ZoneId.of("UTC")), user));
-        makeFirstFollower(firstName, email, user, password);
+        makeFirstFollowerAndSendMail(firstName, email, user, password);
         logger.log(Log.LOG_USER_REGISTRATION.toString(), LoggerConstant.USER_CREATED_LOG + PROCESS_OWNER + username);
         return new SuccessResult(USER_CREATED);
     }
@@ -143,7 +142,7 @@ public class UserManager implements UserService {
         user.setRole(getRoleEnumName(role).name());
         user.setAvatar(new Avatar(DEFAULT_AVATAR_URL, LocalDateTime.now().atZone(ZoneId.of("UTC")), user));
         user.setAuthorities(getRoleEnumName(role).getAuthorities());
-        makeFirstFollower(firstName, email, user, password);
+        makeFirstFollowerAndSendMail(firstName, email, user, password);
         logger.log(Log.LOG_USER_ADD.toString(), LoggerConstant.USER_CREATED_LOG + user.getUsername() + PROCESS_OWNER + currentUsername);
         return new SuccessResult(USER_CREATED);
     }
@@ -407,7 +406,7 @@ public class UserManager implements UserService {
     }
 
     //Helpers
-    private void makeFirstFollower(String firstName, String email, User user, String password) throws MessagingException {
+    private void makeFirstFollowerAndSendMail(String firstName, String email, User user, String password) throws MessagingException {
         userRepo.save(user);
         Follower firstFollower = new Follower();
         firstFollower.setFollowTime(LocalDateTime.now().atZone(ZoneId.of("UTC")));
