@@ -88,13 +88,11 @@ public class PoemValidation {
     }
 
     public boolean isPoemTitleNotValid(String poemTitle) {
-        poemTitle = poemTitle.replace(" ", "");
         Pattern pattern = Pattern.compile(POEM_TITLE_PATTERN, Pattern.CASE_INSENSITIVE);
         return !pattern.matcher(poemTitle).find();
     }
 
     public boolean isPoemContentNotValid(String poemContent) {
-        poemContent = poemContent.replace(" ", ""); //çalışmıyor
         Pattern pattern = Pattern.compile(POEM_CONTENT_PATTERN, Pattern.CASE_INSENSITIVE);
         return !pattern.matcher(poemContent).find();
 
