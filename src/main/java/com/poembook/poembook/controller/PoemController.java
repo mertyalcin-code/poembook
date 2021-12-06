@@ -70,7 +70,6 @@ public class PoemController {
                          @RequestParam String poemContent,
                          @RequestParam String categoryTitle
     ) {
-        System.out.println(poemTitle);
         return poemService.create(poemTitle, poemContent, categoryTitle);
     }
 
