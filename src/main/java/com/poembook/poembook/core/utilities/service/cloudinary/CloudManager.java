@@ -5,6 +5,7 @@ import com.cloudinary.utils.ObjectUtils;
 import com.poembook.poembook.core.utilities.result.DataResult;
 import com.poembook.poembook.core.utilities.result.ErrorDataResult;
 import com.poembook.poembook.core.utilities.result.SuccessDataResult;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -18,11 +19,18 @@ import java.util.Map;
 public class CloudManager implements CloudService {
     private final Cloudinary cloudinary;
 
+    @Value("${cloudinary.cloud_name}")
+    private String CLOUD_NAME;
+    @Value("${cloudinary.api_key}")
+    private String API_KEY;
+    @Value("${cloudinary.api_secret}")
+    private String API_SECRET;
+
     public CloudManager() {
         Map<String, String> valuesMap = new HashMap<>();
-        valuesMap.put("cloud_name", "mertyalcin");
-        valuesMap.put("api_key", "223991472982515");
-        valuesMap.put("api_secret", "kG2PJIlTVn7gKta9GewRYx9mZIc");
+        valuesMap.put("cloud_name", CLOUD_NAME);
+        valuesMap.put("api_key", API_KEY);
+        valuesMap.put("api_secret", API_SECRET);
         cloudinary = new Cloudinary(valuesMap);
     }
 

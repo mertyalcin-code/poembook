@@ -31,7 +31,7 @@ import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 
-import static com.poembook.poembook.constant.EmailConstant.EMAIL_SEND_SUCCESS;
+import static com.poembook.poembook.core.utilities.service.EmailConstant.EMAIL_SEND_SUCCESS_NEW_REGISTER;
 import static com.poembook.poembook.constant.LoggerConstant.FORGET_PASSWORD_LOG;
 import static com.poembook.poembook.constant.LoggerConstant.PROCESS_OWNER;
 import static com.poembook.poembook.constant.UserConstant.*;
@@ -99,7 +99,7 @@ public class UserManager implements UserService {
         logger.log(LOG_FORGET_PASSWORD.toString(),
                 FORGET_PASSWORD_LOG + email
         );
-        return new SuccessResult(EMAIL_SEND_SUCCESS);
+        return new SuccessResult(EMAIL_SEND_SUCCESS_NEW_REGISTER);
     }
 
     @Override

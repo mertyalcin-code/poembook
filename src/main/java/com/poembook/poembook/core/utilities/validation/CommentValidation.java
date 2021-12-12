@@ -39,7 +39,7 @@ public class CommentValidation {
     }
 
     public Result validateUpdateComment(Long poemCommentId, String poemCommentText) {
-        if (isPoemCommentExist(poemCommentId)) {
+        if (!isPoemCommentExist(poemCommentId)) {
             return new ErrorResult(COMMENT_NOT_FOUND);
         }
         if (isPoemCommentTextNotValid(poemCommentText)) {

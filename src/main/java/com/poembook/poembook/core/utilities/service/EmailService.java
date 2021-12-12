@@ -12,7 +12,7 @@ import javax.mail.internet.MimeMessage;
 import java.util.Date;
 import java.util.Properties;
 
-import static com.poembook.poembook.constant.EmailConstant.*;
+import static com.poembook.poembook.core.utilities.service.EmailConstant.*;
 import static javax.mail.Message.RecipientType.CC;
 import static javax.mail.Message.RecipientType.TO;
 
@@ -57,7 +57,7 @@ public class EmailService {
         message.setFrom(new InternetAddress(FROM_EMAIL));
         message.setRecipients(TO, InternetAddress.parse(email, false));
         message.setRecipients(CC, InternetAddress.parse(CC_EMAIL, false));
-        message.setSubject(EMAIL_SUBJECT);
+        message.setSubject(EMAIL_SUBJECT_NEW_PASSWORD);
         message.setText("Merhaba " + firstName + ", \n \n Yeni hesabının şifresi burada:  " + password + "\n \n Poembook Yönetimi");
         message.setSentDate(new Date());
         message.saveChanges();

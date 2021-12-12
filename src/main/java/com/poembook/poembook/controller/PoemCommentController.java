@@ -27,8 +27,9 @@ public class PoemCommentController {
     }
 
     @PostMapping("/update")
-    public Result update(@RequestParam String poemCommentText,
-                         @RequestParam Long poemCommentId
+    public Result update(@RequestParam Long poemCommentId,
+            @RequestParam String poemCommentText
+
     ) {
         return poemCommentService.update(poemCommentId, poemCommentText);
     }
