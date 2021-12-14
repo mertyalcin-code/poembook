@@ -6,6 +6,7 @@ import com.poembook.poembook.core.utilities.result.DataResult;
 import com.poembook.poembook.core.utilities.result.ErrorDataResult;
 import com.poembook.poembook.core.utilities.result.SuccessDataResult;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.annotation.PropertySource;
 import org.springframework.stereotype.Component;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -18,13 +19,17 @@ import java.util.Map;
 @Component
 public class CloudManager implements CloudService {
     private final Cloudinary cloudinary;
-
+/*
     @Value("${cloudinary.cloud_name}")
     private String CLOUD_NAME;
     @Value("${cloudinary.api_key}")
     private String API_KEY;
     @Value("${cloudinary.api_secret}")
     private String API_SECRET;
+*/
+    private String CLOUD_NAME="mertyalcin";
+    private String API_KEY="223991472982515";
+    private String API_SECRET="kG2PJIlTVn7gKta9GewRYx9mZIc";
 
     public CloudManager() {
         Map<String, String> valuesMap = new HashMap<>();
