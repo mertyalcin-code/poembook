@@ -6,8 +6,8 @@ public class UserConstant {
     public static final String EMAIL_INVALID = "Mail adresi geçersiz";
     public static final String USERNAME_INVALID = "Kullanıcı adı geçersiz";
     public static final String PASSWORD_INVALID = "Şifre geçersiz";
-    public static final String FIRST_NAME_INVALID = "Şifre geçersiz";
-    public static final String LAST_NAME_INVALID = "Şifre geçersiz";
+    public static final String FIRST_NAME_INVALID = "Ad geçersiz";
+    public static final String LAST_NAME_INVALID = "Soyad geçersiz";
     public static final String EMAIL_ALREADY_EXISTS = "Bu mail adresi zaten kullanılıyor";
     public static final String EMAIL_UPDATED = "Email adresiniz güncellendi";
     public static final String USERNAME_UPDATED = "Kullanıcı adı güncellendi";
