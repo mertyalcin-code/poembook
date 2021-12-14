@@ -34,7 +34,7 @@ public class PoemCommentController {
         return poemCommentService.update(poemCommentId, poemCommentText);
     }
 
-    @DeleteMapping("/delete{poemCommentId}")
+    @DeleteMapping("/delete/{poemCommentId}")
     public Result delete(@PathVariable Long poemCommentId) {
         return poemCommentService.delete(poemCommentId);
     }
