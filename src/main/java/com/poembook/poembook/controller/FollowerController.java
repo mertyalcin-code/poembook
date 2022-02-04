@@ -46,7 +46,7 @@ public class FollowerController {
 
     @PostMapping("/following")
     public DataResult<List<String>> getFollowings(@RequestParam String username) {
-        return followerService.getUsersFallowing(username);
+        return followerService.getUsersFollowing(username);
     }
 
 }

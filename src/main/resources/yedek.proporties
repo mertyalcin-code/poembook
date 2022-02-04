@@ -1,16 +1,17 @@
 server.port=8080
-spring.datasource.url=jdbc:postgresql://localhost:5432/poembook2
-spring.datasource.password=12345
-spring.datasource.username=postgres
+spring.datasource.url=jdbc:postgresql://ec2-18-202-156-92.eu-west-1.compute.amazonaws.com/d9h6peetlj00o2
+spring.datasource.password=e203d1c688d49d8eab34a63ce9f5c49e803e0de8d650fabd0f3c64da23b01a03
+spring.datasource.username=nkadtimhyvaadl
 spring.jpa.database-platform=org.hibernate.dialect.PostgreSQLDialect
 spring.jpa.properties.hibernate.dialect=org.hibernate.dialect.PostgreSQLDialect
 spring.jpa.show-sql=true
 spring.jpa.hibernate.ddl-auto=update
 
-email.password=dyphfdbksiufecuo
+email.password=leblebi19
 jwt.secret='[a-zA-Z0-9._]^+$Guidelines89797987forAlphabeticalArraNumeralsandOtherSymbo$'
 
 cloudinary.cloud_name= mertyalcin
 cloudinary.api_key= 223991472982515
 cloudinary.api_secret= kG2PJIlTVn7gKta9GewRYx9mZIc
+
 #heroku pg:credentials:url -a poembook-backend

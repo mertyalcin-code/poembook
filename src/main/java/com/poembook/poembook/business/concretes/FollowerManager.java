@@ -84,7 +84,7 @@ public class FollowerManager implements FollowerService {
     }
 
     @Override
-    public DataResult<List<String>> getUsersFallowing(String username) {
+    public DataResult<List<String>> getUsersFollowing(String username) {
         List<Follower> followings = followersRepo.findAllByFrom(userRepo.findUserByUsername(username));
         followings.removeIf(following -> !following.getFrom().isActive());
         if (followings.size() < 1) {

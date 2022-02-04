@@ -17,5 +17,4 @@ public interface UserRepo extends JpaRepository<User, Long> {
     // List<User> findAllByIsActive(boolean status);
     //List<User> findAllByNotLocked(boolean status);
 
-
 }

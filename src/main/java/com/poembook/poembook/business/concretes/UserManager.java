@@ -20,6 +20,7 @@ import com.poembook.poembook.repository.*;
 import lombok.AllArgsConstructor;
 import org.apache.commons.lang3.RandomStringUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.springframework.data.domain.Sort;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -223,6 +224,7 @@ public class UserManager implements UserService {
     @Override
     public DataResult<List<User>> getAllAdmins() {
         List<User> users = userRepo.findAllByRole("ROLE_ADMIN");
+
         if (users.size() < 1) {
             return new ErrorDataResult<>(USER_NOT_FOUND);
         }

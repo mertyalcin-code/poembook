@@ -14,7 +14,7 @@ public interface FollowerService {
 
     DataResult<List<String>> getUsersFollowers(String username);
 
-    DataResult<List<String>> getUsersFallowing(String username);
+    DataResult<List<String>> getUsersFollowing(String username);
 
 
 }

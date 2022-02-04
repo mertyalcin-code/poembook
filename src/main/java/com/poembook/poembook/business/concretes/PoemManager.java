@@ -21,7 +21,6 @@ import org.springframework.stereotype.Service;
 import java.time.Duration;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
-import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
@@ -117,7 +116,7 @@ public class PoemManager implements PoemService {
     @Override
     public DataResult<List<PoemBox>> listFollowingsPoemsByDate(int indexStart, int indexEnd) {
         String username = SecurityContextHolder.getContext().getAuthentication().getName();
-        List<String> followings = followerService.getUsersFallowing(username).getData();
+        List<String> followings = followerService.getUsersFollowing(username).getData();
         if (followings == null) {
             return new ErrorDataResult<>(NO_FOLLOWING_FOUND);
         }
@@ -128,7 +127,7 @@ public class PoemManager implements PoemService {
             loadInfoToPoemBox(bigList, poems);
         }
         bigList.sort(Comparator.comparing(PoemBox::getCreationDate).reversed());
-
+        
         if (indexStart > 0) {
             bigList.subList(0, indexStart).clear();
         }
@@ -160,12 +159,16 @@ public class PoemManager implements PoemService {
 
     @Override
     public DataResult<List<PoemBox>> list20MostLikedPoems() {
-        return getListPopulerPoems(Comparator.comparing(Poem::getHowManyLikes));
+        List<PoemBox> bigList = new ArrayList<>();
+        loadInfoToPoemBox(bigList, poemRepo.findTop20ByOrderByHowManyLikesDesc());
+        return new SuccessDataResult<>(bigList, POEM_LISTED);
     }
 
     @Override
     public DataResult<List<PoemBox>> list20MostCommentsPoems() {
-        return getListPopulerPoems(Comparator.comparing(Poem::getCommentCount));
+        List<PoemBox> bigList = new ArrayList<>();
+        loadInfoToPoemBox(bigList, poemRepo.findTop20ByOrderByCommentCountDesc());
+        return new SuccessDataResult<>(bigList, POEM_LISTED);
     }
 
     @Override
@@ -324,7 +327,6 @@ public class PoemManager implements PoemService {
             poemBox.setPoemContent(poem.getPoemContent());
             poemBox.setActive(poem.isActive());
             poemBox.setCreationDate(poem.getCreationDate());
-
             poemBox.setCreationDateInMinute(Duration.between(poem.getCreationDate(),LocalDateTime.now().atZone(ZoneId.of("UTC"))).toMinutes());
             poemBox.setLastUpdateDate(poem.getLastUpdateDate());
             poemBox.setCommentCount(poem.getCommentCount());
@@ -336,7 +338,7 @@ public class PoemManager implements PoemService {
             poemBox.setAvatar(poem.getUser().getAvatar().getImageUrl());
             poemBox.setWhoLiked(whoLiked(poem.getPoemId()));
             List<PoemCommentBox> poemCommentBoxes = new ArrayList<>();
-            List<PoemComment> poemComments = poemCommentRepo.findAllByPoem(poem);
+            List<PoemComment> poemComments = poem.getPoemComments();
             if (poemComments != null) {
                 for (PoemComment poemComment : poemComments) {
                     PoemCommentBox poemCommentBox = new PoemCommentBox();
@@ -354,6 +356,7 @@ public class PoemManager implements PoemService {
             }
             bigList.add(poemBox);
         }
+
     }
 
 
@@ -379,17 +382,7 @@ public class PoemManager implements PoemService {
         }
     }
 
-    private DataResult<List<PoemBox>> getListPopulerPoems(Comparator<Poem> comparing) {
-        List<Poem> poems = findAllPoem().getData();
-        poems.removeIf(poem -> !poem.isActive());
-        poems.sort(comparing.reversed());
-        if (poems.size() > 20) {
-            poems.subList(20, poems.size()).clear();
-        }
-        List<PoemBox> bigList = new ArrayList<>();
-        loadInfoToPoemBox(bigList, poems);
-        return new SuccessDataResult<>(bigList, POEM_LISTED);
-    }
+
 
     @Override
     public DataResult<Poem> findById(Long id) {
